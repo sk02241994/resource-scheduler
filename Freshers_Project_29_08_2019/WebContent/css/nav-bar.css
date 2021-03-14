@@ -1,0 +1,35 @@
+@charset "ISO-8859-1";
+
+ul{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #95C6E8;
+	border-radius: 10px;
+}
+
+li{
+	float: left;
+	font-size: 24px;
+}
+
+li a {
+	display: block;
+	color: black;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+li a:hover:not(.active) {
+	background-color: #319DE8;
+}
+
+.active {
+  background-color: #319DE8;	
+}
+
+.logout{
+  float: right;	
+}

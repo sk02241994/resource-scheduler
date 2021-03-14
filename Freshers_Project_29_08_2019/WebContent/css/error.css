@@ -1,0 +1,14 @@
+@charset "ISO-8859-1";
+
+img{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+}
+
+b{
+	display: block;
+	text-align: center;
+	font-size: 25px;
+}

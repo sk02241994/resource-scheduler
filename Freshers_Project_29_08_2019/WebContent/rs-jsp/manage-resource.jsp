@@ -5,6 +5,7 @@
 <%@ page import="java.util.ArrayList"%>
 <%@ page import="com.altres.rs.model.Resource" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>  
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -127,6 +128,16 @@
         	</tr>
 			
 			<tr>
+				<td><label>Time Limit</label></td>
+				<fmt:parseNumber var="hours" integerOnly="true" type="number" value="${singleResource.timeLimit div 60}" />
+				<td><input type="text" name="timeLimitHours" placeholder="Hours" value="${hours eq 0 ? '' : hours}"/>
+				<c:set value="${singleResource.timeLimit mod 60}" var="minutes" />
+				<input type="text" name="timeLimitMinutes" placeholder="Minutes" 
+				value="${minutes eq 0 ? '' : minutes}"/>
+				</td>
+			</tr>
+			
+			<tr>
 				<td colspan="2">
 					<input type="submit" value="Save"> 
 					<input type="button"
@@ -183,6 +194,13 @@
 				<td><input type="checkbox" name="isenabled" checked="checked">
 				</td>
 			</tr>        
+			
+			<tr>
+				<td><label>Time Limit</label></td>
+				<td><input type="text" name="timeLimitHours" placeholder="Hours"/>
+				<input type="text" name="timeLimitMinutes" placeholder="Minutes"/>
+				</td>
+			</tr>
 			
 			<tr>
 				<td colspan="2">

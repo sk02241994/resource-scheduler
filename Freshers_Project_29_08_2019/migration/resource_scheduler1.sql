@@ -48,3 +48,6 @@ create table rs_reservation (rs_reservation_id int(11) auto_increment,
 								
 ALTER TABLE `rs_user` 
 ADD COLUMN `is_admin` TINYINT(1) NULL DEFAULT 0 AFTER `updated_date`;
+
+ALTER TABLE `rs_resource` 
+ADD COLUMN `time_limit` INT NULL DEFAULT NULL AFTER `updated_date`;

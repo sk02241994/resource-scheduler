@@ -63,7 +63,7 @@
 				<td><c:out value="${reservation.endTime}" /></td>
 
 				<td><c:choose>
-						<c:when test="${(reservation.userId eq sessionScope.login_servlet_user_id)}">
+						<c:when test="${(reservation.userId eq sessionScope.login_servlet_user_id) or sessionScope.login_is_admin}">
 							<input type="button" onclick="getId('${reservation.reservationId}')" value="Edit">
 							<input type="button" onclick="getIdForDelete('${reservation.reservationId}')" value="Delete">
 						</c:when>

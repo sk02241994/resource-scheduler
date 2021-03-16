@@ -24,6 +24,7 @@ public class ResourceDao {
   public static final String COL_CREATED_DATE = "created_date";
   public static final String COL_UPDATED_BY = "updated_by";
   public static final String COL_UPDATED_DATE = "updated_date";
+  public static final String COL_TIME_LIMIT = "time_limit";
 
   /**
    * Method to save the resource in database.
@@ -41,8 +42,8 @@ public class ResourceDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytosave = "INSERT INTO rs_resource"
-          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date)"
-          + " VALUES(?, ?, ?, ?, now(), ?, now())";
+          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit)"
+          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?)";
 
       statement = connection.prepareStatement(querytosave);
 
@@ -51,6 +52,7 @@ public class ResourceDao {
       statement.setString(3, resourceList.getResourceDescription());
       statement.setString(4, resourceList.getResourceName());
       statement.setString(5, resourceList.getResourceName());
+      statement.setInt(6, resourceList.getTimeLimit());
 
       statement.execute();
     } finally {
@@ -93,6 +95,7 @@ public class ResourceDao {
         resource.setResourceName(resultSet.getString(COL_RESOURCE_NAME));
         resource.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         resource.setResourceDescription(resultSet.getString(COL_DESCRIPTION));
+        resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
         resourcelist.add(resource);
       }
     } finally {
@@ -142,6 +145,7 @@ public class ResourceDao {
         resource.setResourceName(resultSet.getString(COL_RESOURCE_NAME));
         resource.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         resource.setResourceDescription(resultSet.getString(COL_DESCRIPTION));
+        resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
       }
     } finally {
 
@@ -176,7 +180,7 @@ public class ResourceDao {
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
 
-      String querytoupdate = "UPDATE rs_resource SET resource_name = ?, is_active = ?, description = ? "
+      String querytoupdate = "UPDATE rs_resource SET resource_name = ?, is_active = ?, description = ?, time_limit = ? "
           + "WHERE rs_resource_id = ?";
 
       statement = connection.prepareStatement(querytoupdate);
@@ -184,7 +188,8 @@ public class ResourceDao {
       statement.setString(1, resource.getResourceName());
       statement.setBoolean(2, resource.isEnabled());
       statement.setString(3, resource.getResourceDescription());
-      statement.setInt(4, resource.getRsResourceId());
+      statement.setInt(4, resource.getTimeLimit());
+      statement.setInt(5, resource.getRsResourceId());
 
       statement.executeUpdate();
 

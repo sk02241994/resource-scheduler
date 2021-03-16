@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +21,7 @@ import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.ReservationDao;
 import com.altres.rs.dao.ResourceDao;
 import com.altres.rs.model.ReservationDetails;
+import com.altres.rs.model.Resource;
 import com.google.gson.Gson;
 
 /**
@@ -321,8 +322,6 @@ public class ReservationServlet extends HttpServlet {
 
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
-    long timeDifference = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        - startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     if (endDateTime.isBefore(startDateTime)) {
 
@@ -331,13 +330,21 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
       dispatcher.forward(request, response);
-    } else if (timeDifference < 600000) {
+    } else if (startDateTime.toLocalTime().until(endDateTime.toLocalTime(), ChronoUnit.MINUTES) < 10) {
 
       request.setAttribute("error_message",
           "Difference between end date and start date cannot be less than 10 minutes");
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
+      dispatcher.forward(request, response);
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
+      request.setAttribute("error_message",
+          "Resource cannot be booked beyond XYZ minutes");
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     } else {
       reservation.setUserId(userId);
@@ -393,8 +400,6 @@ public class ReservationServlet extends HttpServlet {
 
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
-    long timeDifference = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        - startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     if (endDateTime.isBefore(startDateTime)) {
 
@@ -403,12 +408,20 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(SINGLE_RESREVATION, reservationDao.getSingleReservation(reservationIdFromCalendar, userId, isAdmin));
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
-    } else if (timeDifference < 600000) {
+    } else if (startDateTime.toLocalTime().until(endDateTime.toLocalTime(), ChronoUnit.MINUTES) < 10) {
 
       request.setAttribute("error_message",
           "Difference between end date and start date cannot be less than 10 minutes");
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(SINGLE_RESREVATION, reservationDao.getSingleReservation(reservationIdFromCalendar, userId, isAdmin));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
+      dispatcher.forward(request, response);
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
+      request.setAttribute("error_message",
+          "Resource cannot be booked beyond XYZ minutes");
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     } else {
@@ -465,8 +478,6 @@ public class ReservationServlet extends HttpServlet {
 
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
-    long timeDifference = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        - startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     if (endDateTime.isBefore(startDateTime)) {
       request.setAttribute("error_message", "End date and time cannot be smaller than start date and time");
@@ -474,12 +485,20 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
       dispatcher.forward(request, response);
-    } else if (timeDifference < 600000) {
+    } else if (startDateTime.toLocalTime().until(endDateTime.toLocalTime(), ChronoUnit.MINUTES) < 10) {
       request.setAttribute("error_message",
           "Difference between end date and start date cannot be less than 10 minutes");
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
+      dispatcher.forward(request, response);
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
+      request.setAttribute("error_message",
+          "Resource cannot be booked beyond XYZ minutes");
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     } else {
       reservation.setUserId(userId);
@@ -535,8 +554,6 @@ public class ReservationServlet extends HttpServlet {
 
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
-    long timeDifference = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        - startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     if (endDateTime.isBefore(startDateTime)) {
       request.setAttribute("error_message", "End date and time cannot be smaller than start date and time");
@@ -545,9 +562,17 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
-    } else if (timeDifference < 600000) {
+    } else if (startDateTime.toLocalTime().until(endDateTime.toLocalTime(), ChronoUnit.MINUTES) < 10) {
       request.setAttribute("error_message",
           "Difference between end date and start date cannot be less than 10 minutes");
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
+      dispatcher.forward(request, response);
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
+      request.setAttribute("error_message",
+          "Resource cannot be booked beyond XYZ minutes");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
@@ -576,5 +601,25 @@ public class ReservationServlet extends HttpServlet {
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     }
+  }
+
+  /**
+   * Method to check if the reservation is under the time limit.
+   * 
+   * @param startTime
+   * @param endTime
+   * @param resourceId
+   * @return
+   * @throws SQLException
+   * @throws IOException
+   */
+  private boolean isReservationUnderLimit(LocalDateTime startTime, LocalDateTime endTime, int resourceId)
+      throws SQLException, IOException {
+
+    Resource resource = new ResourceDao().getSingleResource(resourceId);
+
+    return resource.getTimeLimit() != null 
+        && resource.getTimeLimit() != 0 
+        && startTime.toLocalTime().plusMinutes(resource.getTimeLimit()).isAfter(endTime.toLocalTime());
   }
 }

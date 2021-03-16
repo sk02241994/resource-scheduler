@@ -101,6 +101,8 @@ public class ResourceServlet extends HttpServlet {
     String resourcename = request.getParameter("resource_name");
     String description = request.getParameter("description");
     boolean isEnabled = "on".equals(request.getParameter("isenabled"));
+    String timeLimitHours = request.getParameter("timeLimitHours").trim();
+    String timeLimitMinutes = request.getParameter("timeLimitMinutes").trim();
 
     Resource resource = new Resource();
 
@@ -109,11 +111,17 @@ public class ResourceServlet extends HttpServlet {
         request.setAttribute("error_message", "Resource name cannot be empty");
         request.setAttribute("resources", resourceDao.getResource());
         dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
+      } else if(!timeLimitHours.isEmpty() && !timeLimitMinutes.isEmpty() && isNotNumber(timeLimitHours, timeLimitMinutes)) {
+        request.setAttribute("error_message", "Please enter valid hours and minutes.");
+        request.setAttribute("resources", resourceDao.getResource());
+        dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
       } else {
 
         resource.setResourceName(resourcename);
         resource.setResourceDescription(description);
         resource.setEnabled(isEnabled);
+        Integer timeInMinutes = (toInt(timeLimitHours) * 60) + toInt(timeLimitMinutes);
+        resource.setTimeLimit(timeInMinutes == 0 ? null : timeInMinutes);
 
         if ("edit_resource".equals(editResourceField)) {
           int id = Integer.parseInt(request.getParameter("resource_id"));
@@ -137,5 +145,30 @@ public class ResourceServlet extends HttpServlet {
     }
 
     dispatcher.forward(request, response);
+  }
+
+  /**
+   * Method to check if the given time entered is number or not.
+   * 
+   * @param timeLimitHours
+   * @param timeLimitMinutes
+   * @return
+   */
+  private boolean isNotNumber(String timeLimitHours, String timeLimitMinutes) {
+    try{
+      Integer.parseInt(timeLimitMinutes);
+      Integer.parseInt(timeLimitHours);
+    } catch (NumberFormatException e) {
+      return true;
+    }
+    return false;
+  }
+
+  private Integer toInt(String time) {
+    try{
+      return Integer.parseInt(time);
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 }

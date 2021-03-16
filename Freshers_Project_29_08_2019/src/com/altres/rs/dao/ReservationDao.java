@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -316,7 +317,6 @@ public class ReservationDao {
   public boolean isReserved(LocalDateTime startDateTime, LocalDateTime endDateTime, int resourceId, int reservationId)
       throws SQLException, IOException {
 
-    DateFormat dateTimeFormatter = new SimpleDateFormat(DATE_TIME_PATTERN);
     Connection connection = null;
     PreparedStatement statement = null;
     ResultSet resultSet = null;
@@ -329,10 +329,10 @@ public class ReservationDao {
 
       statement = connection.prepareStatement(queryToFindValidDate);
 
-      statement.setString(1, dateTimeFormatter.format(startDateTime));
-      statement.setString(2, dateTimeFormatter.format(endDateTime));
-      statement.setString(3, dateTimeFormatter.format(startDateTime));
-      statement.setString(4, dateTimeFormatter.format(endDateTime));
+      statement.setString(1, Timestamp.valueOf(startDateTime).toString().replaceAll("\\.\\d+", ""));
+      statement.setString(2, Timestamp.valueOf(endDateTime).toString().replaceAll("\\.\\d+", ""));
+      statement.setString(3, Timestamp.valueOf(startDateTime).toString().replaceAll("\\.\\d+", ""));
+      statement.setString(4, Timestamp.valueOf(endDateTime).toString().replaceAll("\\.\\d+", ""));
       statement.setInt(5, resourceId);
       statement.setInt(6, reservationId);
 

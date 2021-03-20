@@ -64,7 +64,7 @@ var isAdmin = ${sessionScope.login_is_admin}
   
   <input type="button" onclick="previous()" value="Previous" class="previous">
    <select name="resource_filter" onchange="filterByResource(this.value);">
-   			<option value=""></option>
+   			<option value="">All</option>
 			<c:forEach items="${resources}" var="resource">
 				<option <c:if test="${singleReservation.resourceId eq resource.rsResourceId}">selected="selected"</c:if>
 					value="${resource.rsResourceId}">${resource.resourceName}</option>

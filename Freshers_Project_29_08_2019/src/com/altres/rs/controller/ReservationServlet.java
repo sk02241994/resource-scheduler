@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.altres.mail.util.MailAndCalender;
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.ReservationDao;
 import com.altres.rs.dao.ResourceDao;
@@ -70,7 +72,9 @@ public class ReservationServlet extends HttpServlet {
 
     HttpSession session = request.getSession();
     RequestDispatcher dispatcher = null;
-
+    MailAndCalender mail = new MailAndCalender();
+    mail.showUser();
+    
     ReservationDao reservationDao = new ReservationDao();
     ResourceDao resourceDao = new ResourceDao();
     String formAction = request.getParameter("form_action");
@@ -618,8 +622,8 @@ public class ReservationServlet extends HttpServlet {
 
     Resource resource = new ResourceDao().getSingleResource(resourceId);
 
-    return resource.getTimeLimit() != null 
-        && resource.getTimeLimit() != 0 
-        && startTime.toLocalTime().plusMinutes(resource.getTimeLimit()).isAfter(endTime.toLocalTime());
+    return resource.getTimeLimit() != null && resource.getTimeLimit() != 0
+        && endTime.toLocalTime().get(ChronoField.MINUTE_OF_DAY)
+            - startTime.toLocalTime().get(ChronoField.MINUTE_OF_DAY) > resource.getTimeLimit(); 
   }
 }

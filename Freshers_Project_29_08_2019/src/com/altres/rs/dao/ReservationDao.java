@@ -5,11 +5,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,8 +31,7 @@ public class ReservationDao {
 
   private static final String COL_RS_RESERVATION_ID = "rs_reservation_id";
   private static final String COL_RS_USER_ID = "rs_user_id";
-  private static final String COL_FIRST_NAME = "first_name";
-  private static final String COL_LAST_NAME = "last_name";
+  private static final String COL_NAME = "name";
   private static final String COL_RESOURCE_NAME = "resource_name";
   private static final String COL_RS_RESOURCE_ID = "rs_resource_id";
   private static final String COL_START_DATE = "start_date";
@@ -58,7 +60,7 @@ public class ReservationDao {
       DateFormat time = new SimpleDateFormat("HH:mm");
 
       String queryForReservation = "SELECT rs_reservation.rs_reservation_id, " + "rs_reservation.rs_user_id, "
-          + "rs_user.first_name, " + "rs_user.last_name, " + "rs_reservation.rs_resource_id, "
+          + "rs_user.name, " + "rs_reservation.rs_resource_id, "
           + "rs_resource.resource_name, " + "rs_reservation.start_date, " + "rs_reservation.end_date "
           + "FROM rs_user, rs_resource, rs_reservation " + "WHERE rs_user.rs_user_id = rs_reservation.rs_user_id AND "
           + "rs_resource.rs_resource_id = rs_reservation.rs_resource_id ";
@@ -74,7 +76,7 @@ public class ReservationDao {
 
         reservationDetails.setUserId(resultSet.getInt(COL_RS_USER_ID));
 
-        reservationDetails.setUserName(resultSet.getString(COL_FIRST_NAME) + " " + resultSet.getString(COL_LAST_NAME));
+        reservationDetails.setUserName(resultSet.getString(COL_NAME));
 
         reservationDetails.setResourceId(resultSet.getInt(COL_RS_RESOURCE_ID));
 
@@ -115,14 +117,17 @@ public class ReservationDao {
    * Method to save the resources that are selected and the time for when the resources are booked.
    * 
    * @param reservation
+   * @return 
    * @throws SQLException
    * @throws ParseException
    * @throws IOException 
    */
-  public void saveReservation(ReservationDetails reservation) throws SQLException, ParseException, IOException {
+  public int saveReservation(ReservationDetails reservation) throws SQLException, ParseException, IOException {
 
     Connection connection = null;
     PreparedStatement statement = null;
+    ResultSet generatedKeys = null;
+    int reservationId = 0;
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
@@ -134,7 +139,7 @@ public class ReservationDao {
           + "(rs_user_id, rs_resource_id, start_date, end_date, created_by, created_date, updated_by, updated_date) "
           + "VALUES (?, ?, ?, ?, ?, now(), ?, now())";
 
-      statement = connection.prepareStatement(queryToSaveReservation);
+      statement = connection.prepareStatement(queryToSaveReservation, Statement.RETURN_GENERATED_KEYS);
 
       statement.setInt(1, reservation.getUserId());
       statement.setInt(2, reservation.getResourceId());
@@ -148,7 +153,12 @@ public class ReservationDao {
       statement.setString(5, reservation.getUserName());
       statement.setString(6, reservation.getUserName());
 
-      statement.execute();
+      statement.executeUpdate();
+      generatedKeys = statement.getGeneratedKeys();
+      boolean isGenerated = generatedKeys.next();
+      if(isGenerated) {
+        reservationId = generatedKeys.getInt(1);
+      }
     } finally {
       if (statement != null) {
         statement.close();
@@ -157,8 +167,13 @@ public class ReservationDao {
       if (connection != null) {
         connection.close();
       }
+      
+      if(generatedKeys != null) {
+        generatedKeys.close();
+      }
     }
 
+    return reservationId;
   }
 
   /**
@@ -259,6 +274,7 @@ public class ReservationDao {
    * 
    * @param reservation
    * @param reservationId
+   * @return 
    * @throws SQLException
    * @throws ParseException
    * @throws IOException 
@@ -275,23 +291,23 @@ public class ReservationDao {
       DateFormat dateTimeParser = new SimpleDateFormat(DATE_TIME_PATTERN);
       Date date = null;
 
-      String queryForUpdate = "UPDATE rs_reservation SET rs_resource_id = ?, start_date = ?, end_date = ? WHERE "
+      String queryForUpdate = "UPDATE rs_reservation SET rs_reservation_id = ?, rs_resource_id = ?, start_date = ?, end_date = ? WHERE "
           + "rs_reservation_id = ? ";
 
       statement = connection.prepareStatement(queryForUpdate);
 
-      statement.setInt(1, reservation.getResourceId());
+      statement.setInt(1, reservationId);
+      statement.setInt(2, reservation.getResourceId());
 
       date = dateTimeParser.parse(reservation.getStartDate() + " " + reservation.getStartTime());
-      statement.setString(2, dateTimeFormatter.format(date));
-
-      date = dateTimeParser.parse(reservation.getEndDate() + " " + reservation.getEndTime());
       statement.setString(3, dateTimeFormatter.format(date));
 
-      statement.setInt(4, reservationId);
+      date = dateTimeParser.parse(reservation.getEndDate() + " " + reservation.getEndTime());
+      statement.setString(4, dateTimeFormatter.format(date));
+
+      statement.setInt(5, reservationId);
 
       statement.executeUpdate();
-      
     } finally {
       if (statement != null) {
         statement.close();
@@ -386,7 +402,7 @@ public class ReservationDao {
       DateFormat time = new SimpleDateFormat("HH:mm");
 
       String queryForReservation = "SELECT rs_reservation.rs_reservation_id, " + "rs_reservation.rs_user_id, "
-          + "rs_user.first_name, " + "rs_user.last_name, " + "rs_reservation.rs_resource_id, "
+          + "rs_user.name, " + "rs_reservation.rs_resource_id, "
           + "rs_resource.resource_name, " + "rs_reservation.start_date, " + "rs_reservation.end_date "
           + "FROM rs_user, rs_resource, rs_reservation " + "WHERE rs_user.rs_user_id = rs_reservation.rs_user_id AND "
           + "rs_resource.rs_resource_id = rs_reservation.rs_resource_id " + "AND rs_reservation.rs_reservation_id = ?"
@@ -407,7 +423,7 @@ public class ReservationDao {
 
         reservationDetails.setUserId(resultSet.getInt(COL_RS_USER_ID));
 
-        reservationDetails.setUserName(resultSet.getString(COL_FIRST_NAME) + " " + resultSet.getString(COL_LAST_NAME));
+        reservationDetails.setUserName(resultSet.getString(COL_NAME));
 
         reservationDetails.setResourceId(resultSet.getInt(COL_RS_RESOURCE_ID));
 
@@ -442,4 +458,114 @@ public class ReservationDao {
 
   }
 
+  public ReservationDetails findByReservationId(Integer reservationId) throws SQLException, IOException, ParseException {
+    ReservationDetails reservationDetails = new ReservationDetails();
+    Connection connection = null;
+    PreparedStatement statement = null;
+    ResultSet resultSet = null;
+
+    try {
+      connection = SqlConnection.getInstance().initalizeConnection();
+      DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+      Date dateTime = null;
+      DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+      DateFormat time = new SimpleDateFormat("HH:mm");
+
+      String queryForReservation = "SELECT rs_reservation.rs_reservation_id, " + "rs_reservation.rs_user_id, "
+          + "rs_user.name, " + "rs_reservation.rs_resource_id, "
+          + "rs_resource.resource_name, " + "rs_reservation.start_date, " + "rs_reservation.end_date "
+          + "FROM rs_user, rs_resource, rs_reservation " + "WHERE rs_user.rs_user_id = rs_reservation.rs_user_id AND "
+          + "rs_resource.rs_resource_id = rs_reservation.rs_resource_id " + "AND rs_reservation.rs_reservation_id = ?";
+
+      statement = connection.prepareStatement(queryForReservation);
+
+      statement.setObject(1, reservationId);
+
+      resultSet = statement.executeQuery();
+
+      while (resultSet.next()) {
+
+        reservationDetails.setReservationId(resultSet.getInt(COL_RS_RESERVATION_ID));
+
+        reservationDetails.setUserId(resultSet.getInt(COL_RS_USER_ID));
+
+        reservationDetails.setUserName(resultSet.getString(COL_NAME));
+
+        reservationDetails.setResourceId(resultSet.getInt(COL_RS_RESOURCE_ID));
+
+        reservationDetails.setResourceName(resultSet.getString(COL_RESOURCE_NAME));
+
+        dateTime = inputFormat.parse(resultSet.getString(COL_START_DATE));
+        reservationDetails.setStartDate(date.format(dateTime));
+
+        reservationDetails.setStartTime(time.format(dateTime));
+
+        dateTime = inputFormat.parse(resultSet.getString(COL_END_DATE));
+        reservationDetails.setEndDate(date.format(dateTime));
+
+        reservationDetails.setEndTime(time.format(dateTime));
+      }
+      
+    } finally {
+      
+      if (resultSet != null) {
+        resultSet.close();
+      }
+
+      if (statement != null) {
+        statement.close();
+      }
+
+      if (connection != null) {
+        connection.close();
+      }
+    }
+    return reservationDetails;
+  }
+
+  public boolean isUsedInDay(LocalDateTime startDateTime, LocalDateTime endDateTime, int resourceId, int userId)
+      throws SQLException, IOException {
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+    Connection connection = null;
+    PreparedStatement statement = null;
+    ResultSet resultSet = null;
+    boolean isReserved =  false;
+
+    try {
+      connection = SqlConnection.getInstance().initalizeConnection();
+
+      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE ((start_date BETWEEN ? AND ?) OR "
+          + "(end_date BETWEEN ? AND ?)) AND rs_resource_id = ? AND rs_user_id = ?";
+
+      statement = connection.prepareStatement(queryToFindValidDate);
+
+      statement.setString(1, startDateTime.toLocalDate().atStartOfDay().format(formatter));
+      statement.setString(2, endDateTime.toLocalDate().atTime(LocalTime.MAX).format(formatter));
+      statement.setString(3, startDateTime.toLocalDate().atStartOfDay().format(formatter));
+      statement.setString(4, endDateTime.toLocalDate().atTime(LocalTime.MAX).format(formatter));
+      statement.setInt(5, resourceId);
+      statement.setInt(6, userId);
+
+      resultSet = statement.executeQuery();
+      if (resultSet.next()) {
+        isReserved = true;
+      }
+      
+    } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
+
+      if (statement != null) {
+        statement.close();
+      }
+
+      if (connection != null) {
+        connection.close();
+      }
+    }
+
+    return isReserved;
+  }
 }

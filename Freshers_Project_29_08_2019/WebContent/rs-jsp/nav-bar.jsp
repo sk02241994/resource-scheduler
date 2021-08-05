@@ -14,7 +14,7 @@
       
         <c:choose>
           
-          <c:when test="${sessionScope.login_servlet_user_id eq 1 }">
+          <c:when test="${sessionScope.login_is_admin}">
             <li><a href="ReservationServlet">Home</a></li>
             <li><a href="UserServlet">Manage User</a></li>
             <li><a href="ResourceServlet">Manage Resource</a></li>

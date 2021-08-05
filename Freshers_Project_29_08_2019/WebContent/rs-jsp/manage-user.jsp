@@ -11,8 +11,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>User</title>
 
-<link rel="stylesheet" type="text/css"
-	href="/ResourceScheduler/css/manage-user.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/manage-user.css" />
 <script type="text/javascript" src="/ResourceScheduler/js/manage_user.js"></script>
 </head>
 <body onload="validateErrorForm()">
@@ -22,14 +22,11 @@
 	</div>
 
 	<button
-		onclick="document.getElementById('add-user').style.display='block'"
-		class="add-user-button">Add</button>
+		onclick="document.getElementById('add-field').style.display='block'"
+		class="add-button">Add</button>
 		
 		
-	<c:if test="${not empty success_message }">  
-  	<div id="notification" class="notification">${success_message}
-  		<span class="closeButton" onclick="this.parentElement.style.display='none';">&times;</span></div>
-  	</c:if>
+	<%@include file="notification.jsp"%>
 
 	<div>
 		<div class="left">
@@ -37,18 +34,14 @@
 				<tr>
 					<th>Name</th>
 					<th>Email</th>
-					<th>Designation</th>
-					<th>Department</th>
 					<th>Status</th>
 					<th>Action</th>
 				</tr>
 				<c:forEach items="${user}" var="users">
 					<tr>
 
-						<td><c:out value="${users.firstname} ${users.lastname}" /></td>
+						<td><c:out value="${users.name}" /></td>
 						<td><c:out value="${users.email_address}" /></td>
-						<td><c:out value="${users.designation}" /></td>
-						<td><c:out value="${users.department}" /></td>
 						<td>
 						  <c:choose>
 								<c:when test="${users.isEnabled()}">Active</c:when>
@@ -67,8 +60,8 @@
 
 		<c:if test="${not empty singleUser }">
 
-			<div id="edit-user" class="edit-user">
-				<form action="UserServlet" method="post" class="user-form" onsubmit="return validateForm()">
+			<div id="edit-field" class="edit-field">
+				<form action="UserServlet" method="post" class="edit-form" onsubmit="return validateForm()">
 				
 				<table>
 				
@@ -77,7 +70,7 @@
 							<input type="hidden" name="edit" value="edit_user" />
 
 								<div class="cancel-container">
-									<span onclick="document.getElementById('edit-user').style.display='none'" 
+									<span onclick="document.getElementById('edit-field').style.display='none'" 
 									class="close"> &times;</span><br />
 								</div>
 
@@ -89,19 +82,11 @@
 					</tr>
 					
 					<tr>
-						<td><label>First Name<span class="required">*</span>: </label></td>
+						<td><label>Name<span class="required">*</span>: </label></td>
 						<td>
-							<input type="text" name="first_name" placeholder="First Name" value="${singleUser.firstname}"
+							<input type="text" name="name" placeholder="Name" value="${singleUser.name}"
 								onblur="validateFirstName(this)" maxlength="50"><br /> 
 								<b id="error-firstname"></b>
-							</td>
-					</tr>
-					
-					<tr>
-						<td><label>Last Name<span class="required">*</span>: </label><br/></td>
-						<td>
-							<input type="text" name="last_name" placeholder="Last Name" value="${singleUser.lastname}"
-								onblur="validateLastName(this)" maxlength="50"><br /> <b id="error-lastname"></b>
 							</td>
 					</tr>
 					
@@ -110,55 +95,6 @@
 						<td><input type="text" name="email" placeholder="Email Address" 
 							value="${singleUser.email_address}"
 								readonly="readonly" maxlength="50"><br /></td>
-					</tr>
-					
-					<tr>
-						<td><label>Designation<span class="required">*</span>: </label><br/></td>
-						<td>
-							<select name="designation">
-
-								<option disabled="disabled">Designation</option>
-
-								<option <c:if test="${singleUser.department eq 'Manager'}">selected="selected"</c:if>>
-									Manager</option>
-
-								<option <c:if test="${singleUser.department eq 'HR'}">selected="selected"</c:if>>
-								HR</option>
-
-								<option <c:if test="${singleUser.department eq 'SW Dev'}">selected="selected"</c:if>>
-								SW Dev</option>
-
-							</select>
-
-							</td>
-					</tr>
-					
-					<tr>
-						<td><label>Address: </label><br/></td>
-						<td>
-							<textarea rows="5" cols="40%" name="address" placeholder="Address" maxlength="255" 
-							wrap="hard">${singleUser.address}</textarea>
-						</td>
-					</tr>
-					
-					<tr>
-						<td><label>Department<span class="required">*</span>: </label><br/></td>
-						<td>
-						<select name="department">
-
-								<option disabled="disabled">Department</option>
-
-								<option <c:if test="${singleUser.department eq 'IT'}">selected="selected"</c:if>>
-									IT</option>
-
-								<option <c:if test="${singleUser.department eq 'Database'}">selected="selected"</c:if>>
-									Database</option>
-
-								<option <c:if test="${singleUser.department eq 'Technical'}">selected="selected"</c:if>>
-									Technical</option>
-
-						</select>
-						</td>					
 					</tr>
 					
 					<tr>
@@ -181,7 +117,7 @@
 						<td colspan="2">
 							<input type="submit" value="Save"> 
 							<input type="button"
-							onclick="document.getElementById('edit-user').style.display='none'" value="Cancel">
+							onclick="document.getElementById('edit-field').style.display='none'" value="Cancel">
 
 							</td>
 					</tr>
@@ -198,8 +134,8 @@
 
 
 
-		<div id="add-user" class="add-user">
-			<form action="UserServlet" method="post" class="user-form" onsubmit="return validateAddForm(this)" 
+		<div id="add-field" class="add-field">
+			<form action="UserServlet" method="post" class="edit-form" onsubmit="return validateAddForm(this)" 
 			name="add_user">
 
 				<table>
@@ -207,7 +143,7 @@
 						<td colspan="2">
 						
 							<div class="cancel-container">
-								<span onclick="document.getElementById('add-user').style.display='none'" class="close">
+								<span onclick="document.getElementById('add-field').style.display='none'" class="close">
 								&times;</span> <br />
 							</div>
 							<div class="error-user">
@@ -219,16 +155,9 @@
 					</tr>
 					
 					<tr>
-						<td><label>First Name<span class="required">*</span>: </label><br/></td>
-						<td><input type="text" name="first_name" placeholder="First Name" onblur="validateFirstName(this)"
+						<td><label>Name<span class="required">*</span>: </label><br/></td>
+						<td><input type="text" name="name" placeholder="Name" onblur="validateFirstName(this)"
 							maxlength="50"><br /> <b id="error-firstname"></b>
-						</td>
-					</tr>
-					
-					<tr>
-						<td><label>Last Name<span class="required">*</span>: </label><br/></td>
-						<td><input type="text" name="last_name" placeholder="Last Name" onblur="validateLastName(this)"
-							maxlength="50"><br /><b id="error-lastname"></b>
 						</td>
 					</tr>
 					
@@ -237,39 +166,6 @@
 						<td><input type="text" name="email" placeholder="Email Address" onblur="validateEmail(this)" 
 							maxlength="50"><br />
 							<b id="error-mail"></b>
-						</td>
-					</tr>
-					
-					<tr>
-						<td><label>Designation<span class="required">*</span>: </label><br/></td>
-						<td><select name="designation">
-
-								<option disabled="disabled" selected="selected">Designation</option>
-								<option>Manager</option>
-								<option>HR</option>
-								<option>SW Dev</option>
-
-						</select></td>
-					</tr>
-					
-					<tr>
-						<td><label>Address: </label><br/></td>
-						<td><textarea rows="5" cols="40%" name="address" placeholder="Address" 
-							maxlength="100" wrap="hard"></textarea>
-						</td>
-					</tr>
-					
-					<tr>
-						<td><label>Department<span class="required">*</span>: </label><br/></td>
-						<td>
-							<select name="department">
-
-								<option disabled="disabled" selected="selected" value="">Department</option>
-								<option>IT</option>
-								<option>Database</option>
-								<option>Technical</option>
-
-							</select>
 						</td>
 					</tr>
 					
@@ -289,7 +185,7 @@
 					
 					<tr>
 						<td colspan="2"><input type="submit" value="Add">
-							<input type="button" onclick="document.getElementById('add-user').style.display='none'" 
+							<input type="button" onclick="document.getElementById('add-field').style.display='none'" 
 							value="Cancel">
 						</td>
 					</tr>

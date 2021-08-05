@@ -101,7 +101,6 @@ function validateEditForm(formObj) {
 	endDate = document.forms["edit_Reservation"]["end_date"];
 	endTime = document.forms["edit_Reservation"]["end_time"];
 	
-	debugger;
 	if (Date.parse(endDate.value + " " + endTime.value) < Date
 			.parse(startDate.value + " " + startTime.value)) {
 		document.getElementById("form-validation-editing").innerHTML = "End Date and time cannot be smaller" +
@@ -140,7 +139,7 @@ function validateAddForm(formObj){
 	startTime = document.forms["add_Reservation"]["start_time"];
 	endDate = document.forms["add_Reservation"]["end_date"];
 	endTime = document.forms["add_Reservation"]["end_time"];
-	debugger;
+
 	if(Date.parse(endDate.value+" "+endTime.value) < Date.parse(startDate.value+" "+startTime.value)){
 		document.getElementById("form-validation-adding").innerHTML = "End Date and time cannot be smaller " +
 				"than start date and time";

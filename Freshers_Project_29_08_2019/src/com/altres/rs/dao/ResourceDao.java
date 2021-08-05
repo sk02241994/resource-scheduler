@@ -25,6 +25,7 @@ public class ResourceDao {
   public static final String COL_UPDATED_BY = "updated_by";
   public static final String COL_UPDATED_DATE = "updated_date";
   public static final String COL_TIME_LIMIT = "time_limit";
+  public static final String COL_IS_ALLOWED_MULTIPLE = "is_allowed_multiple";
 
   /**
    * Method to save the resource in database.
@@ -42,9 +43,8 @@ public class ResourceDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytosave = "INSERT INTO rs_resource"
-          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit)"
-          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?)";
-
+          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit, is_allowed_multiple)"
+          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?)";
       statement = connection.prepareStatement(querytosave);
 
       statement.setString(1, resourceList.getResourceName());
@@ -52,7 +52,8 @@ public class ResourceDao {
       statement.setString(3, resourceList.getResourceDescription());
       statement.setString(4, resourceList.getResourceName());
       statement.setString(5, resourceList.getResourceName());
-      statement.setInt(6, resourceList.getTimeLimit());
+      statement.setObject(6, resourceList.getTimeLimit());
+      statement.setBoolean(7, resourceList.isAllowedMultiple());
 
       statement.execute();
     } finally {
@@ -96,6 +97,7 @@ public class ResourceDao {
         resource.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         resource.setResourceDescription(resultSet.getString(COL_DESCRIPTION));
         resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
+        resource.setIsAllowedMultiple(resultSet.getBoolean(COL_IS_ALLOWED_MULTIPLE));
         resourcelist.add(resource);
       }
     } finally {
@@ -146,6 +148,7 @@ public class ResourceDao {
         resource.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         resource.setResourceDescription(resultSet.getString(COL_DESCRIPTION));
         resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
+        resource.setIsAllowedMultiple(resultSet.getBoolean(COL_IS_ALLOWED_MULTIPLE));
       }
     } finally {
 
@@ -180,16 +183,17 @@ public class ResourceDao {
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
 
-      String querytoupdate = "UPDATE rs_resource SET resource_name = ?, is_active = ?, description = ?, time_limit = ? "
-          + "WHERE rs_resource_id = ?";
+      String querytoupdate = "UPDATE rs_resource SET resource_name = ?, is_active = ?, description = ?, time_limit = ?, "
+          + "is_allowed_multiple = ? WHERE rs_resource_id = ?";
 
       statement = connection.prepareStatement(querytoupdate);
 
       statement.setString(1, resource.getResourceName());
       statement.setBoolean(2, resource.isEnabled());
       statement.setString(3, resource.getResourceDescription());
-      statement.setInt(4, resource.getTimeLimit());
-      statement.setInt(5, resource.getRsResourceId());
+      statement.setObject(4, resource.getTimeLimit());
+      statement.setObject(5, resource.isAllowedMultiple());
+      statement.setInt(6, resource.getRsResourceId());
 
       statement.executeUpdate();
 

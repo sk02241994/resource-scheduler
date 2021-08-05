@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import com.altres.connection.util.SqlConnection;
 import com.altres.rs.model.User;
 
@@ -14,13 +15,9 @@ import com.altres.rs.model.User;
 public class LoginDao {
 
   private static final String COL_RS_USER_ID = "rs_user_id";
-  private static final String COL_FIRST_NAME = "first_name";
-  private static final String COL_LAST_NAME = "last_name";
+  private static final String COL_NAME = "name";
   private static final String COL_EMAIL_ADDRESS = "email_address";
   private static final String COL_PASSWORD = "password";
-  private static final String COL_DESIGNATION = "designation";
-  private static final String COL_ADDRESS = "address";
-  private static final String COL_DEPARTMENT = "department";
   private static final String COL_IS_ACTIVE = "is_active";
   private static final String COL_IS_ADMIN = "is_admin";
 
@@ -53,13 +50,9 @@ public class LoginDao {
 
       if (resultSet.next()) {
         user.setRsUserId(resultSet.getInt(COL_RS_USER_ID));
-        user.setFirstname(resultSet.getString(COL_FIRST_NAME));
-        user.setLastname(resultSet.getString(COL_LAST_NAME));
+        user.setName(resultSet.getString(COL_NAME));
         user.setEmail_address(resultSet.getString(COL_EMAIL_ADDRESS));
         user.setPassword(resultSet.getString(COL_PASSWORD));
-        user.setDesignation(resultSet.getString(COL_DESIGNATION));
-        user.setAddress(resultSet.getString(COL_ADDRESS));
-        user.setDepartment(resultSet.getString(COL_DEPARTMENT));
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
       }

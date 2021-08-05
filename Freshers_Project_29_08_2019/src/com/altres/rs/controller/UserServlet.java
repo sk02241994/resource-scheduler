@@ -70,29 +70,19 @@ public class UserServlet extends HttpServlet {
     
     String editUserField = request.getParameter("edit");
     
-    String firstname = request.getParameter("first_name");
-    String lastname = request.getParameter("last_name");
+    String firstname = request.getParameter("name");
     String emailAddress = request.getParameter("email");
-    String designation = request.getParameter("designation");
-    String address = request.getParameter("address");
-    String department = request.getParameter("department");
     boolean isEnabled = "on".equals(request.getParameter("isenabled"));
     boolean isAdmin = "on".equals(request.getParameter("isadmin"));
 
     User user = new User();
 
-    if(firstname.equals("") || lastname.equals("") || emailAddress.equals("") || designation == null || 
-        department == null) {
+    if(firstname.equals("") || emailAddress.equals("")) {
       request.setAttribute("error_message", "All user details must be filled");
-    }
-    else {
+    } else {
 
-      user.setFirstname(firstname);
-      user.setLastname(lastname);
+      user.setName(firstname);
       user.setEmail_address(emailAddress);
-      user.setDesignation(designation);
-      user.setAddress(address);
-      user.setDepartment(department);
       user.setEnabled(isEnabled);
       user.setIsAdmin(isAdmin);
 

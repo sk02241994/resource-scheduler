@@ -1,53 +1,51 @@
 
--- using schema resource_scheduler 
+-- table for resources
 
--- create schema resource_scheduler;
+CREATE TABLE `rs_resource` (
+  `rs_resource_id` int(11) NOT NULL AUTO_INCREMENT,
+  `resource_name` varchar(50) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `description` varchar(80) DEFAULT NULL,
+  `created_by` varchar(50) DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL,
+  `updated_by` varchar(50) DEFAULT NULL,
+  `updated_date` datetime DEFAULT NULL,
+  `time_limit` int(11) DEFAULT NULL,
+  PRIMARY KEY (`rs_resource_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8
 
 -- table for user
 
-create table rs_user (rs_user_id int(11) auto_increment,
-						first_name varchar(50) not null,
-                        last_name varchar(50) not null,
-                        email_address varchar(50) not null,
-                        password varchar(30) not null,
-                        designation varchar(10) not null,
-                        address varchar(70),
-                        department varchar(50) not null,
-                        is_active tinyint(1) not null,
-                        created_by varchar(50),
-                        created_date datetime,
-                        updated_by varchar(50),
-                        updated_date datetime,
-                        primary key (rs_user_id));
+CREATE TABLE `rs_user` (
+  `rs_user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `email_address` varchar(50) NOT NULL,
+  `password` varchar(30) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `created_by` varchar(50) DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL,
+  `updated_by` varchar(50) DEFAULT NULL,
+  `updated_date` datetime DEFAULT NULL,
+  `is_admin` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`rs_user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8
 
--- table for rs_resource
-                        
-create table rs_resource (rs_resource_id int(11) auto_increment,
-							resource_name varchar(50) not null,
-                            is_active tinyint(1) not null,
-                            created_by varchar(50),
-                            created_date datetime,
-                            updated_by varchar(50),
-                            updated_date datetime,
-                            primary key (rs_resource_id));
+-- table for reservation
 
--- table for rs_reservation
+CREATE TABLE `rs_reservation` (
+  `rs_reservation_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rs_user_id` int(11) DEFAULT NULL,
+  `rs_resource_id` int(11) DEFAULT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL,
+  `created_by` varchar(50) DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL,
+  `updated_by` varchar(50) DEFAULT NULL,
+  `updated_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`rs_reservation_id`),
+  KEY `rs_user_id` (`rs_user_id`),
+  KEY `rs_resource_id` (`rs_resource_id`),
+  CONSTRAINT `rs_reservation_ibfk_1` FOREIGN KEY (`rs_user_id`) REFERENCES `rs_user` (`rs_user_id`),
+  CONSTRAINT `rs_reservation_ibfk_2` FOREIGN KEY (`rs_resource_id`) REFERENCES `rs_resource` (`rs_resource_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8
 
-create table rs_reservation (rs_reservation_id int(11) auto_increment,
-								rs_user_id int(11),
-                                rs_resource_id int(11),
-                                start_date datetime not null,
-                                end_date datetime not null,
-                                created_by varchar(50),
-                                created_date datetime,
-                                updated_by varchar(50),
-                                updated_date datetime,
-                                primary key (rs_reservation_id),
-                                foreign key (rs_user_id) references rs_user(rs_user_id),
-                                foreign key (rs_resource_id) references rs_resource(rs_resource_id));
-								
-ALTER TABLE `rs_user` 
-ADD COLUMN `is_admin` TINYINT(1) NULL DEFAULT 0 AFTER `updated_date`;
-
-ALTER TABLE `rs_resource` 
-ADD COLUMN `time_limit` INT NULL DEFAULT NULL AFTER `updated_date`;

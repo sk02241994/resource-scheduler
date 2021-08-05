@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.altres.mail.util.MailAndCalender;
+import com.altres.mail.util.Mail;
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.ReservationDao;
 import com.altres.rs.dao.ResourceDao;
@@ -72,8 +72,8 @@ public class ReservationServlet extends HttpServlet {
 
     HttpSession session = request.getSession();
     RequestDispatcher dispatcher = null;
-    MailAndCalender mail = new MailAndCalender();
-    mail.showUser();
+   
+   // CalenderEvent.test(request.getContextPath());
     
     ReservationDao reservationDao = new ReservationDao();
     ResourceDao resourceDao = new ResourceDao();
@@ -324,6 +324,8 @@ public class ReservationServlet extends HttpServlet {
     String endTime = request.getParameter(END_TIME) + ":00";
     int reservationId = Integer.parseInt(request.getParameter(RESERVATION_ID));
 
+    Resource resource = new ResourceDao().getSingleResource(resourceId);
+
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
 
@@ -334,7 +336,8 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
       dispatcher.forward(request, response);
-    } else if (startDateTime.toLocalTime().until(endDateTime.toLocalTime(), ChronoUnit.MINUTES) < 10) {
+    } else if (startDateTime.until(endDateTime, ChronoUnit.MINUTES) < 10
+        && startDateTime.toLocalTime().until(endDateTime.toLocalTime(), ChronoUnit.MINUTES) < 10) {
 
       request.setAttribute("error_message",
           "Difference between end date and start date cannot be less than 10 minutes");
@@ -342,9 +345,16 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
       dispatcher.forward(request, response);
-    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
-      request.setAttribute("error_message",
-          "Resource cannot be booked beyond XYZ minutes");
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resource)) {
+      request.setAttribute("error_message", errorMessage(resource));
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
+      dispatcher.forward(request, response);
+    } else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
+        resourceId)) {
+      request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
@@ -361,6 +371,12 @@ public class ReservationServlet extends HttpServlet {
 
       if (reservationDao.isReserved(startDateTime, endDateTime, resourceId, reservationId)) {
         reservationDao.updateReservation(reservation, reservationId);
+        if(reservationId != 0) {
+          Mail mail = new Mail((String)session.getAttribute("login_servlet_email"));
+          if(!mail.sendMessageToUser(reservationId) || !mail.setMessageToAdmins(reservationId)) {
+            request.setAttribute("error_message", "Unable to send mail");
+          }
+        }
         request.setAttribute(SUCCESS_MESSAGE, "Date and time has been updated");
       } else {
         request.setAttribute("error_message", "Date and time already reserved for resource please try another date");
@@ -402,6 +418,8 @@ public class ReservationServlet extends HttpServlet {
     int userId = Integer.parseInt(request.getParameter(USER_ID));
     int reservationIdFromCalendar = Integer.parseInt(request.getParameter(RESERVATION_ID));
 
+    Resource resource = new ResourceDao().getSingleResource(resourceId);
+
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
 
@@ -420,9 +438,16 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(SINGLE_RESREVATION, reservationDao.getSingleReservation(reservationIdFromCalendar, userId, isAdmin));
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
-    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
-      request.setAttribute("error_message",
-          "Resource cannot be booked beyond XYZ minutes");
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resource)) {
+      request.setAttribute("error_message", errorMessage(resource));
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
+      dispatcher.forward(request, response);
+    }  else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
+        resourceId)) {
+      request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
@@ -440,6 +465,12 @@ public class ReservationServlet extends HttpServlet {
 
       if (reservationDao.isReserved(startDateTime, endDateTime, resourceId, reservationIdFromCalendar)) {
         reservationDao.updateReservation(reservation, reservationIdFromCalendar);
+        if(reservationIdFromCalendar != 0) {
+          Mail mail = new Mail((String)session.getAttribute("login_servlet_email"));
+          if(!mail.sendMessageToUser(reservationIdFromCalendar) || !mail.setMessageToAdmins(reservationIdFromCalendar)) {
+            request.setAttribute("error_message", "Unable to send mail");
+          }
+        }
         request.setAttribute(SUCCESS_MESSAGE, "Date and time has been updated");
       } else {
         request.setAttribute("error_message", "Date and time already reserved for resource please try another date");
@@ -480,6 +511,8 @@ public class ReservationServlet extends HttpServlet {
     int resourceId = Integer.parseInt(request.getParameter(RESOURCE_NAME));
     int userId = Integer.parseInt(request.getParameter(USER_ID));
 
+    Resource resource = new ResourceDao().getSingleResource(resourceId);
+
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
 
@@ -496,9 +529,16 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(RESERVATIONS, reservationDao.getReservationListing());
       dispatcher = request.getRequestDispatcher(MANAGE_RESERVATION);
       dispatcher.forward(request, response);
-    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
-      request.setAttribute("error_message",
-          "Resource cannot be booked beyond XYZ minutes");
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resource)) {
+      request.setAttribute("error_message", errorMessage(resource));
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
+      dispatcher.forward(request, response);
+    } else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
+        resourceId)) {
+      request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
@@ -515,7 +555,13 @@ public class ReservationServlet extends HttpServlet {
 
       if (reservationDao.isReserved(startDateTime, endDateTime, resourceId)) {
 
-        reservationDao.saveReservation(reservation);
+        int reservationId = reservationDao.saveReservation(reservation);
+        if(reservationId != 0) {
+          Mail mail = new Mail((String)session.getAttribute("login_servlet_email"));
+          if(!mail.sendMessageToUser(reservationId) || !mail.setMessageToAdmins(reservationId)) {
+            request.setAttribute("error_message", "Unable to send mail");
+          }
+        }
 
         request.setAttribute(SUCCESS_MESSAGE, "Date and time has been added");
       } else {
@@ -556,6 +602,8 @@ public class ReservationServlet extends HttpServlet {
     int resourceId = Integer.parseInt(request.getParameter(RESOURCE_NAME));
     int userId = Integer.parseInt(request.getParameter(USER_ID));
 
+    Resource resource = new ResourceDao().getSingleResource(resourceId);
+
     LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T" + startTime);
     LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T" + endTime);
 
@@ -574,9 +622,16 @@ public class ReservationServlet extends HttpServlet {
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
-    } else if (isReservationUnderLimit(startDateTime, endDateTime, resourceId)) {
-      request.setAttribute("error_message",
-          "Resource cannot be booked beyond XYZ minutes");
+    } else if (isReservationUnderLimit(startDateTime, endDateTime, resource)) {
+      request.setAttribute("error_message", errorMessage(resource));
+      response.setContentType(APPLICATION_JSON);
+      request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
+      request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
+      dispatcher = request.getRequestDispatcher(CALENDAR);
+      dispatcher.forward(request, response);
+    } else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
+        resourceId)) {
+      request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
       request.setAttribute(SCHEDULE, convertListToJson(reservationDao.getReservationListing()));
@@ -593,7 +648,13 @@ public class ReservationServlet extends HttpServlet {
 
       if (reservationDao.isReserved(startDateTime, endDateTime, resourceId)) {
 
-        reservationDao.saveReservation(reservation);
+        int reservationId = reservationDao.saveReservation(reservation);
+        if(reservationId != 0) {
+          Mail mail = new Mail((String)session.getAttribute("login_servlet_email"));
+          if(!mail.sendMessageToUser(reservationId) || !mail.setMessageToAdmins(reservationId)) {
+            request.setAttribute("error_message", "Unable to send mail");
+          }
+        }
 
         request.setAttribute(SUCCESS_MESSAGE, "Date and time has been added");
       } else {
@@ -612,18 +673,36 @@ public class ReservationServlet extends HttpServlet {
    * 
    * @param startTime
    * @param endTime
-   * @param resourceId
+   * @param resource
    * @return
-   * @throws SQLException
-   * @throws IOException
    */
-  private boolean isReservationUnderLimit(LocalDateTime startTime, LocalDateTime endTime, int resourceId)
-      throws SQLException, IOException {
-
-    Resource resource = new ResourceDao().getSingleResource(resourceId);
+  private boolean isReservationUnderLimit(LocalDateTime startTime, LocalDateTime endTime, Resource resource) {
 
     return resource.getTimeLimit() != null && resource.getTimeLimit() != 0
         && endTime.toLocalTime().get(ChronoField.MINUTE_OF_DAY)
             - startTime.toLocalTime().get(ChronoField.MINUTE_OF_DAY) > resource.getTimeLimit(); 
+  }
+
+  private String errorMessage(Resource resource) {
+    int hours = (int) resource.getTimeLimit() / 60;
+    int minutes = (int) resource.getTimeLimit() % 60;
+
+    StringBuilder errorMessage = new StringBuilder();
+    errorMessage.append("Resource cannot be booked beyond ");
+
+    if(hours != 0) {
+      errorMessage.append(hours + " hours ");
+    }
+    if(minutes != 0) {
+      errorMessage.append(hours + " minutes");
+    }
+    return errorMessage.toString();
+  }
+
+  private boolean isAllowedToSaveMultipleRecordsInADay(ReservationDao reservationDao, Resource resource,
+      LocalDateTime startDateTime, LocalDateTime endDateTime, int userId, int resourceId) throws SQLException, IOException {
+    
+    return !resource.isAllowedMultiple() && reservationDao.isUsedInDay(startDateTime, endDateTime, resourceId, userId);
+    
   }
 }

@@ -6,10 +6,8 @@ import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +25,6 @@ import com.altres.rs.model.User;
  * Class for handling all the login verifications and passing the user or administrator to their respective pages
  * also validating the user if valid and active or inactive user.
  */
-@WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
@@ -72,19 +69,18 @@ public class LoginServlet extends HttpServlet {
     String emailAddress = request.getParameter("uemail_address");
     String password = request.getParameter("user_password");
     User user = null;
-    
 
-      HttpSession session = request.getSession();
-      session.setAttribute("login_servlet_email", emailAddress);
-      try {
-        user = logindao.getUser(emailAddress, password);
-        session.setAttribute("login_servlet_user_id", user.getRsUserId());
-        session.setAttribute("login_is_admin", user.isAdmin());
-      } catch (SQLException exception) {
-        LOGGER.log(Level.SEVERE, "Exception while logging in as a valid user", exception);
-        throw new ServletException("There was an error while trying to get your credentials");
-      }
-      validateAndForward(emailAddress, password, request, response, user);
+    HttpSession session = request.getSession();
+    session.setAttribute("login_servlet_email", emailAddress);
+    try {
+      user = logindao.getUser(emailAddress, password);
+      session.setAttribute("login_servlet_user_id", user.getRsUserId());
+      session.setAttribute("login_is_admin", user.isAdmin());
+    } catch (SQLException exception) {
+      LOGGER.log(Level.SEVERE, "Exception while logging in as a valid user", exception);
+      throw new ServletException("There was an error while trying to get your credentials");
+    }
+    validateAndForward(emailAddress, password, request, response, user);
 
   }
 
@@ -110,15 +106,11 @@ public class LoginServlet extends HttpServlet {
       if (!validateUser.isValidLogin(emailAddress, password)) {
         request.setAttribute("errorMessage", "Invalid email or password");
         dispatcher = request.getRequestDispatcher(Constants.LOGIN_JSP);
-      }
-
-      else if (validateUser.isAdmin()) {
+      } else if (validateUser.isAdmin()) {
         UserDao userDao = new UserDao();
         request.setAttribute("user", userDao.getUser());
         dispatcher = request.getRequestDispatcher(Constants.MANAGE_USER_JSP);
-      }
-
-      else if (validateUser.isEnabled()) {
+      } else if (validateUser.isEnabled()) {
 
         if (validateUser.isFirstLogin(password)) {
           dispatcher = request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP);
@@ -131,9 +123,7 @@ public class LoginServlet extends HttpServlet {
           request.setAttribute("reservations", reservationDao.getReservationListing());
           dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESERVATION_JSP);
         }
-      }
-
-      else {
+      } else {
         request.setAttribute("disableError", "Account disabled please contact adminsitrator");
         dispatcher = request.getRequestDispatcher(Constants.LOGIN_JSP);
       }

@@ -1,101 +1,5 @@
 @charset "ISO-8859-1";
 
-.cancel-container{
-	cursor: pointer;
-}
-
-.edit-resource {
-	position: fixed;
-	z-index: 1;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	background-color: rgba(0, 0, 0, 0.4);
-	padding-top: 60px;
-	padding: 5px 5px 5px 5px;
-}
-
-.add-resource {
-	display: none;
-	position: fixed;
-	z-index: 1;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	background-color: rgba(0, 0, 0, 0.4);
-	padding-top: 60px;
-	padding: 5px 5px 5px 5px;
-}
-
-.resource-form {
-	background-color: #fefefe;
-	margin: 5% auto 15% auto;
-	border: 1px solid #888;
-	width: 30%;
-	border-radius: 6px;
-}
-
-.resource-form td label{
-	float: left;
-}
-
-.resource-form td input[type=checkbox]{
-	float: left;
-}
-
-.resource-form td{
-	background-color: #fefefe;
-	padding: 10px;
-	border-bottom: 0px; 
-	font-size: 20px;
-}
-
-table {
-	border: 2px;
-	border-bottom-color: red;
-	border-collapse: collapse;
-	width: 100%;
-}
-
-th {
-	font-size: 24px;
-	text-align:center;
-	color: black;
-	padding: 20px 20px 20px 20px;
-	background: #8DD6C2;
-}
-
-tr td {
-	padding: 30px 30px 30px 30px;
-	text-align: center;
-	border-bottom: 1px solid blue;
-	font-size: 24px;
-	color:black;
-}
-
-tr:nth-child(even){
-	background: #D2EDFF;
-}
-
-tr:nth-child(odd){
-	background: #94DFE0;
-}
-
-.add-resource-button, input[type=button] {
-	width: 75px;
-	height: 29px;
-	margin-left: 45%;
-	margin-bottom: 10px;
-	margin-top: 10px;
-	border-radius: 5px;
-	color: black;
-	background-color: #E6E5E1;
-}
-
 input[type=button]{
 	margin-left: 20px;
 }
@@ -148,16 +52,6 @@ select {
 	border-radius: 5px;
 }
 
-input[type=submit] {
-	border-radius: 5px;
-	width: 75px;
-	height: 29px;
-	margin-bottom: 10px;
-	font-size: 15px;
-	color:black;
-	background-color: #E6E5E1;
-}
-
 textarea {
 	resize: none;
 	height: 100px;
@@ -178,16 +72,6 @@ body {
 #error-delete{
 	padding: 20px;
   	background-color: red;
-  	color: white;
-  	font-size: 25px;
-  	font-weight: bold;
-  	text-align: center;
-  	border-radius: 6px;
-}
-
-#notification{
-	padding: 20px;
-  	background-color: #4CAF50;
   	color: white;
   	font-size: 25px;
   	font-weight: bold;

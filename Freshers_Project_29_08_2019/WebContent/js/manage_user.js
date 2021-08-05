@@ -39,8 +39,7 @@ function validateEmail(mail){
  * @returns boolean
  */
 function validateFirstName(name){
-	
-	var nameformat = /^[A-z][a-z]{1,30}$/;
+	var nameformat = /^\w{1,60}\s\w{1,30}$/;
 	
 	if(name.value.match(nameformat)){
 		document.getElementById("error-firstname").innerHTML = " ";
@@ -54,27 +53,6 @@ function validateFirstName(name){
 }
 
 /**
- * Method to validate user last name.
- * 
- * @param name
- * @returns boolean
- */
-function validateLastName(name){
-	
-	var nameformat = /^[A-z][a-z]{1,30}$/;
-	
-	if(name.value.match(nameformat)){
-		document.getElementById("error-lastname").innerHTML = " ";
-		return true;
-	}
-	else{
-		document.getElementById("error-lastname").innerHTML = "You have entered invalid name format";
-		return false;
-	}
-	
-}
-
-/**
  * Method to validate add form and will notify user if error occurs.
  * 
  * @param formObj
@@ -82,9 +60,7 @@ function validateLastName(name){
  */
 function validateAddForm(formObj){
 	var error = 0;
-	
-	var firstName = document.forms["add_user"]["first_name"].value;
-	var lastName = document.forms["add_user"]["last_name"].value;
+	var firstName = document.forms["add_user"]["name"].value;
 	var email = document.forms["add_user"]["email"];
 	var designation = document.forms["add_user"]["designation"].value;
 	var department = document.forms["add_user"]["department"].value;	
@@ -120,12 +96,14 @@ function validateAddForm(formObj){
  * Method will open add-user form if there is error from server side and will notify what that error is. 
  */
 function validateErrorForm() {
-	var error = document.getElementsByClassName("error-user").childern[1].innerHTML;
-	debugger;
-	if(error == ""){
-		document.getElementById('add-user').style.display='block';
-	}
-	else{
-		document.getElementById('add-user').style.display='none';
+	var errorUser = document.getElementsByClassName("error-user").childern;
+	if(errorUser){
+		var error = errorUser[1].innerHTML;
+		if(error == ""){
+			document.getElementById('add-user').style.display='block';
+		}
+		else{
+			document.getElementById('add-user').style.display='none';
+		}
 	}
 }

@@ -19,6 +19,7 @@
 	href="/ResourceScheduler/css/calendar.css" />
 	<link rel="stylesheet" type="text/css"
 	href="/ResourceScheduler/css/fontawesome.min.css" />
+	
 <script type="text/javascript">
 var schedule= ${schedule}
 var userId = ${sessionScope.login_servlet_user_id}
@@ -63,6 +64,7 @@ var isAdmin = ${sessionScope.login_is_admin}
   </form>
   
   <input type="button" onclick="previous()" value="Previous" class="previous">
+  <label class="resource">Resources: 
    <select name="resource_filter" onchange="filterByResource(this.value);">
    			<option value="">All</option>
 			<c:forEach items="${resources}" var="resource">
@@ -70,6 +72,7 @@ var isAdmin = ${sessionScope.login_is_admin}
 					value="${resource.rsResourceId}">${resource.resourceName}</option>
 			</c:forEach>
    </select> 
+   </label>
    <input type="button" onclick="next()" value="Next" class="next"> 
    </div>
    <div class="calendar-table">
@@ -119,7 +122,7 @@ var isAdmin = ${sessionScope.login_is_admin}
 	      			<input type="hidden" name="reservation_id" value="${singleReservation.reservationId}"/>
 	      			<input type="hidden" value="${singleReservation.userId}" name="user_id">
 	      			
-	      			<div id="form-validation-editing">
+	      			<div id="form-validation-editing" style="${not empty error_message || not empty error_message_empty ? 'display:block' : ''}">
 		   			<b id="error-date"></b>
 		   			<b id="error-time"></b>
 		   			<c:if test="${not empty error_message || not empty error_message_empty}">
@@ -210,7 +213,7 @@ var isAdmin = ${sessionScope.login_is_admin}
 							class="close">&times;</span><br />
 						</div>
 
-						<div id="form-validation-adding">
+						<div id="form-validation-adding" style="${not empty error_message || not empty error_message_empty ? 'display:block' : ''}">
 							<b id="error-date"></b> 
 							<b id="error-time"></b> 
 							<b>${error_message}</b> 

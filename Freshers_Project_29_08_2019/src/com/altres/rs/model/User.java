@@ -6,28 +6,19 @@ package com.altres.rs.model;
 public class User {
   
   private int rsUserId;
-  private String firstname;
-  private String lastname;
+  private String name;
   private String email_address;
   private String password;
-  private String designation;
-  private String address;
-  private String department;
   private boolean isEnabled;
   private boolean isAdmin;
   
-  public String getFirstname() {
-    return firstname;
+  public String getName() {
+    return name;
   }
-  public void setFirstname(String firstname) {
-    this.firstname = firstname;
+  public void setName(String name) {
+    this.name = name;
   }
-  public String getLastname() {
-    return lastname;
-  }
-  public void setLastname(String lastname) {
-    this.lastname = lastname;
-  }
+
   public String getEmail_address() {
     return email_address;
   }
@@ -40,24 +31,7 @@ public class User {
   public void setPassword(String password) {
     this.password = password;
   }
-  public String getDesignation() {
-    return designation;
-  }
-  public void setDesignation(String designation) {
-    this.designation = designation;
-  }
-  public String getAddress() {
-    return address;
-  }
-  public void setAddress(String address) {
-    this.address = address;
-  }
-  public String getDepartment() {
-    return department;
-  }
-  public void setDepartment(String department) {
-    this.department = department;
-  }
+
   public boolean isEnabled() {
     return isEnabled;
   }

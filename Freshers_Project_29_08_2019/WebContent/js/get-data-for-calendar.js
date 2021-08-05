@@ -14,7 +14,6 @@ function show(id){
 
 // Method to request for details of a reservation of a particular reservation id. 
 function getData(id){
-	debugger;
 	window.location='ReservationServlet?form_action=calendarEdit&reservation_id='+id;	
 }
 

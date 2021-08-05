@@ -10,6 +10,7 @@ public class Resource {
   private String resourceDescription;
   private boolean isEnabled;
   private Integer timeLimit;
+  private boolean isAllowedMultiple;
 
   public String getResourceDescription() {
     return resourceDescription;
@@ -49,5 +50,13 @@ public class Resource {
 
   public Integer getTimeLimit() {
     return this.timeLimit;
+  }
+
+  public void setIsAllowedMultiple(boolean isAllowedMultiple) {
+    this.isAllowedMultiple = isAllowedMultiple;
+  }
+
+  public boolean isAllowedMultiple() {
+    return this.isAllowedMultiple;
   }
 }

@@ -13,8 +13,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Resource</title>
-<link rel="stylesheet" type="text/css"
-	href="/ResourceScheduler/css/manage-resource.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/manage-resource.css" />
 <script type="text/javascript" src="/ResourceScheduler/js/manage_resource.js"></script>
 </head>
 <body onload="formValidationAdding()">
@@ -23,18 +23,15 @@
     <%@include file="nav-bar.jsp"%>
   </div>
 
-  <button onclick="document.getElementById('add-resource').style.display='block'"
-  class="add-resource-button">Add</button>
+  <button onclick="document.getElementById('add-field').style.display='block'"
+  class="add-button">Add</button>
 	
 	<c:if test="${not empty resourcesDeleteError }">  
 		<div id="error-delete">${resourcesDeleteError}</div>
 		<span class="closeButton" onclick="this.parentElement.style.display='none';">&times;</span></div>
 	</c:if>
 	
-	<c:if test="${not empty success_message }">  
-  	<div id="notification" class="notification">${success_message}
-  		<span class="closeButton" onclick="this.parentElement.style.display='none';">&times;</span></div>
-  	</c:if>
+	<%@include file="notification.jsp"%>
 	
   <div>
     
@@ -79,9 +76,9 @@
     
     
     <c:if test="${not empty singleResource}">
-      <div id="edit-resource" class="edit-resource">
+      <div id="edit-field" class="edit-field">
       
-        <form action="ResourceServlet" method="post" class="resource-form" name="resource_form"
+        <form action="ResourceServlet" method="post" class="edit-form" name="resource_form"
         onsubmit="return validateResource(this)">
         
         <table>
@@ -91,7 +88,7 @@
         			<input type="hidden" name="edit_resource" value="edit_resource" />
 
 					<div class="cancel-container">
-					<span onclick="document.getElementById('edit-resource').style.display='none'" class="close">
+					<span onclick="document.getElementById('edit-field').style.display='none'" class="close">
 					&times; </span>
 					</div>
 
@@ -138,10 +135,18 @@
 			</tr>
 			
 			<tr>
+        		<td><label>Is Allowed Multiple Reservations</label></td>
+        		<td>
+        			<input type="checkbox" name="isAllowedMultiple"
+		    		<c:if test="${singleResource.isAllowedMultiple()}">checked="checked"</c:if>>
+        		</td>
+        	</tr>
+			
+			<tr>
 				<td colspan="2">
 					<input type="submit" value="Save"> 
 					<input type="button"
-					onclick="document.getElementById('edit-resource').style.display='none'" value="Cancel">
+					onclick="document.getElementById('edit-field').style.display='none'" value="Cancel">
 				</td>
 			</tr>
 			        	
@@ -155,16 +160,16 @@
     </c:if>
     
     
-    <div id="add-resource" class="add-resource">
+    <div id="add-field" class="add-field">
       
-      <form action="ResourceServlet" method="post" class="resource-form" name="resource_form" 
+      <form action="ResourceServlet" method="post" class="edit-form" name="resource_form" 
       onsubmit="return validateResource(this)">
         
         <table>
         	<tr>
         		<td colspan="2">
         			<div class="cancel-container">
-					<span onclick="document.getElementById('add-resource').style.display='none'" class="close">&times;
+					<span onclick="document.getElementById('add-field').style.display='none'" class="close">&times;
 					</span><br />
 					</div>
 					<div id="error-resource-validation">
@@ -203,12 +208,20 @@
 			</tr>
 			
 			<tr>
+        		<td><label>Is Allowed Multiple Reservations</label></td>
+        		<td>
+        			<input type="checkbox" name="isAllowedMultiple" checked="checked"/>
+        		</td>
+        	</tr>
+			
+			<tr>
 				<td colspan="2">
 					<input type="submit" value="Add">
-        			<input type="button" onclick="document.getElementById('add-resource').style.display='none'"
+        			<input type="button" onclick="document.getElementById('add-field').style.display='none'"
         			value="Cancel">
 				</td>
 			</tr>
+			
         </table>
 
       </form>

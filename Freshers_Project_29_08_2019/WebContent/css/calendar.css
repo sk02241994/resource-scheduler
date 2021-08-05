@@ -41,7 +41,7 @@ h3 {
 	border-radius: 5px;
 	color: black;
 	background-color: #E6E5E1;
-	margin-left: 40%;
+	margin-left: 15%;
 }
 
 select {
@@ -87,9 +87,9 @@ div {
 th {
 	font-size: 24px;
 	text-align: center;
-	color: white;
+	color: black;
 	padding: 20px 20px 20px 20px;
-	background: #2f75b5;
+	background: #6e6c6ce1;
 }
 
 tr, td {
@@ -133,7 +133,7 @@ td div:nth-child(n) {
 	margin: 5% auto 15% auto;
 	border: 1px solid #888;
 	height: 60%;
-	width: 20%;
+	width: 25%;
 	border-radius: 6px;
 	display: flex;
 	flex-direction: column;
@@ -263,14 +263,9 @@ input[type=submit] {
 }
 
 .reservation-form input[type=button] {
-	width: 75px;
-	height: 29px;
 	margin-left: 20px;;
 	margin-bottom: 10px;
 	margin-top: 10px;
-	border-radius: 5px;
-	color: black;
-	background-color: #E6E5E1;
 }
 
 .reservation-form select {
@@ -326,10 +321,10 @@ td .tooltip {
 }
 
 #notification {
-	padding: 15px;
+	padding: 10px;
 	background-color: #4CAF50;
 	color: white;
-	font-size: 25px;
+	font-size: 15px;
 	font-weight: bold;
 	text-align: center;
 	border-radius: 6px;
@@ -367,4 +362,31 @@ td #editicon {
 	background-color: rgba(0, 0, 0, 0.4);
 	padding-top: 60px;
 	padding: 5px 5px 5px 5px;
+}
+
+.resource {
+	width: 75px;
+	height: 29px;
+	margin-left: 8.5%;
+}
+
+input[type=submit] {
+	border-radius: 5px;
+	width: 100px;
+	height: 34px;
+	margin-bottom: 10px;
+	font-size: inherit;
+	font-family: serif;
+	color: black;
+	background-color: #CCC;
+}
+
+input[type=button] {
+	width: 100px;
+	height: 34px;
+	border-radius: 5px;
+	color: black;
+	background-color: #CCC;
+	font-size: 24px;
+	font-family: serif;
 }

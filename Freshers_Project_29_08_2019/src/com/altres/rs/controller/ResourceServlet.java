@@ -103,6 +103,7 @@ public class ResourceServlet extends HttpServlet {
     boolean isEnabled = "on".equals(request.getParameter("isenabled"));
     String timeLimitHours = request.getParameter("timeLimitHours").trim();
     String timeLimitMinutes = request.getParameter("timeLimitMinutes").trim();
+    boolean isAllowedMultiple = "on".equals(request.getParameter("isAllowedMultiple"));
 
     Resource resource = new Resource();
 
@@ -120,6 +121,7 @@ public class ResourceServlet extends HttpServlet {
         resource.setResourceName(resourcename);
         resource.setResourceDescription(description);
         resource.setEnabled(isEnabled);
+        resource.setIsAllowedMultiple(isAllowedMultiple);
         Integer timeInMinutes = (toInt(timeLimitHours) * 60) + toInt(timeLimitMinutes);
         resource.setTimeLimit(timeInMinutes == 0 ? null : timeInMinutes);
 

@@ -14,10 +14,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Reservation</title>
-<link rel="stylesheet" type="text/css"
-	href="/ResourceScheduler/css/manage-reservation.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/manage-reservation.css" />
 <script type="text/javascript" src="/ResourceScheduler/js/manage_reservation.js"></script>
-
 </head>
 <body onload="validateErrorInTime()">
 
@@ -25,14 +24,11 @@
 		<%@include file="nav-bar.jsp"%>
 	</div>
 
-	<button onclick="document.getElementById('add-reservation').style.display='block'" class="add-reservation-button">
+	<button onclick="document.getElementById('add-field').style.display='block'" class="add-button">
 	Add</button>
 	<br/>
   
-	<c:if test="${not empty success_message }">  
-  	<div id="notification" class="notification">${success_message}
-  		<span class="closeButton" onclick="this.parentElement.style.display='none';">&times;</span></div>
-  	</c:if>
+	<%@include file="notification.jsp"%>
 	<table>
 
 		<tr>
@@ -43,7 +39,9 @@
 			<th>Start Time</th>
 			<th>End Date</th>
 			<th>End Time</th>
-			<th>Action</th>
+			<c:if test="${sessionScope.login_is_admin}">
+				<th>Action</th>
+			</c:if>
 		</tr>
 
 		<c:forEach items="${reservations}" var="reservation">
@@ -63,7 +61,7 @@
 				<td><c:out value="${reservation.endTime}" /></td>
 
 				<td><c:choose>
-						<c:when test="${(reservation.userId eq sessionScope.login_servlet_user_id) or sessionScope.login_is_admin}">
+						<c:when test="${sessionScope.login_is_admin}">
 							<input type="button" onclick="getId('${reservation.reservationId}')" value="Edit">
 							<input type="button" onclick="getIdForDelete('${reservation.reservationId}')" value="Delete">
 						</c:when>
@@ -77,9 +75,9 @@
   
   
   <c:if test="${not empty singleReservation }">
-	  <div id="edit-reservation" class="edit-reservation">
+	  <div id="edit-field" class="edit-field">
 	    
-	    <form action="ReservationServlet" method="post" class="reservation-form" onsubmit="return validateEditForm(this)"
+	    <form action="ReservationServlet" method="post" class="edit-form" onsubmit="return validateEditForm(this)"
 	    name="edit_Reservation">
 	    
 	      <table>
@@ -88,7 +86,7 @@
 	      		<td colspan="2">
 					
 					<div class="cancel-container">
-					<span onclick="document.getElementById('edit-reservation').style.display='none'" class="close">
+					<span onclick="document.getElementById('edit-field').style.display='none'" class="close">
 					&times;</span>
 					</div>
 					
@@ -163,7 +161,7 @@
 	      	<tr>
 	      		<td colspan="2">
 	      			<input type="submit" value="Save">
-		   			<input type="button" onclick="document.getElementById('edit-reservation').style.display='none'"
+		   			<input type="button" onclick="document.getElementById('edit-field').style.display='none'"
   					class="add-reservation-button" value="Cancel">
 	      		</td>
 	      	</tr>
@@ -176,16 +174,16 @@
   </c:if>
   
   
-  <div id="add-reservation" class="add-reservation">
+  <div id="add-field" class="add-field">
   
-	 <form action="ReservationServlet" method="post" class="reservation-form" onsubmit="return validateAddForm(this)" 
+	 <form action="ReservationServlet" method="post" class="edit-form" onsubmit="return validateAddForm(this)" 
 	 name="add_Reservation">
 	   
 	   <table>
 	   		<tr>
 	   			<td colspan="2">
 						<div class="cancel-container">
-							<span onclick="document.getElementById('add-reservation').style.display='none'" 
+							<span onclick="document.getElementById('add-field').style.display='none'" 
 							class="close">&times;</span><br />
 						</div>
 
@@ -252,7 +250,7 @@
 			<tr> 
 				<td colspan="2">
 					<input type="submit" value="Book">
-				   <input type="button" onclick="document.getElementById('add-reservation').style.display='none'"
+				   <input type="button" onclick="document.getElementById('add-field').style.display='none'"
   					class="add-reservation-button" value="Cancel">
 				</td>
 			</tr>

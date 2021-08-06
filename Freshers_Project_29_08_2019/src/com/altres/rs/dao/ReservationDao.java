@@ -10,13 +10,12 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import com.altres.connection.util.SqlConnection;
 import com.altres.rs.model.Reservation;
 import com.altres.rs.model.ReservationDetails;
@@ -523,33 +522,53 @@ public class ReservationDao {
     return reservationDetails;
   }
 
-  public boolean isUsedInDay(LocalDateTime startDateTime, LocalDateTime endDateTime, int resourceId, int userId)
-      throws SQLException, IOException {
+  public List<ReservationDetails> isUsedInDay(LocalDateTime startDateTime, int resourceId, int userId)
+      throws SQLException, IOException, ParseException {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
     Connection connection = null;
     PreparedStatement statement = null;
     ResultSet resultSet = null;
-    boolean isReserved =  false;
+    List<ReservationDetails> reservationList = new ArrayList<>();
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
+      DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+      Date dateTime = null;
+      DateFormat date = new SimpleDateFormat("MM/dd/yyyy");
+      DateFormat time = new SimpleDateFormat("HH:mm");
 
-      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE ((start_date BETWEEN ? AND ?) OR "
-          + "(end_date BETWEEN ? AND ?)) AND rs_resource_id = ? AND rs_user_id = ?";
+      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE start_date >= ?"
+          + " AND rs_resource_id = ? AND rs_user_id = ?";
 
       statement = connection.prepareStatement(queryToFindValidDate);
 
       statement.setString(1, startDateTime.toLocalDate().atStartOfDay().format(formatter));
-      statement.setString(2, endDateTime.toLocalDate().atTime(LocalTime.MAX).format(formatter));
-      statement.setString(3, startDateTime.toLocalDate().atStartOfDay().format(formatter));
-      statement.setString(4, endDateTime.toLocalDate().atTime(LocalTime.MAX).format(formatter));
-      statement.setInt(5, resourceId);
-      statement.setInt(6, userId);
+
+      statement.setInt(2, resourceId);
+      statement.setInt(3, userId);
 
       resultSet = statement.executeQuery();
-      if (resultSet.next()) {
-        isReserved = true;
+      while (resultSet.next()) {
+        ReservationDetails reservationDetails = new ReservationDetails();
+
+        reservationDetails.setReservationId(resultSet.getInt(COL_RS_RESERVATION_ID));
+
+        reservationDetails.setUserId(resultSet.getInt(COL_RS_USER_ID));
+
+        reservationDetails.setResourceId(resultSet.getInt(COL_RS_RESOURCE_ID));
+
+        dateTime = inputFormat.parse(resultSet.getString(COL_START_DATE));
+        reservationDetails.setStartDate(date.format(dateTime));
+
+        reservationDetails.setStartTime(time.format(dateTime));
+
+        dateTime = inputFormat.parse(resultSet.getString(COL_END_DATE));
+        reservationDetails.setEndDate(date.format(dateTime));
+
+        reservationDetails.setEndTime(time.format(dateTime));
+
+        reservationList.add(reservationDetails);
       }
       
     } finally {
@@ -566,6 +585,6 @@ public class ReservationDao {
       }
     }
 
-    return isReserved;
+    return reservationList;
   }
 }

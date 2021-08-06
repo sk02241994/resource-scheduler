@@ -3,7 +3,10 @@ package com.altres.rs.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -353,7 +356,7 @@ public class ReservationServlet extends HttpServlet {
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     } else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
-        resourceId)) {
+        resourceId, reservationId)) {
       request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
@@ -446,7 +449,7 @@ public class ReservationServlet extends HttpServlet {
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     }  else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
-        resourceId)) {
+        resourceId, reservationIdFromCalendar)) {
       request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
@@ -537,7 +540,7 @@ public class ReservationServlet extends HttpServlet {
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     } else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
-        resourceId)) {
+        resourceId, null)) {
       request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
@@ -630,7 +633,7 @@ public class ReservationServlet extends HttpServlet {
       dispatcher = request.getRequestDispatcher(CALENDAR);
       dispatcher.forward(request, response);
     } else if (isAllowedToSaveMultipleRecordsInADay(reservationDao, resource, startDateTime, endDateTime, userId,
-        resourceId)) {
+        resourceId, null)) {
       request.setAttribute("error_message", "Cannot reserve the resource more than once");
       response.setContentType(APPLICATION_JSON);
       request.setAttribute(RESOURCES, resourceDao.getResourceForUser());
@@ -700,9 +703,23 @@ public class ReservationServlet extends HttpServlet {
   }
 
   private boolean isAllowedToSaveMultipleRecordsInADay(ReservationDao reservationDao, Resource resource,
-      LocalDateTime startDateTime, LocalDateTime endDateTime, int userId, int resourceId) throws SQLException, IOException {
-    
-    return !resource.isAllowedMultiple() && reservationDao.isUsedInDay(startDateTime, endDateTime, resourceId, userId);
-    
+      LocalDateTime startDateTime, LocalDateTime endDateTime, int userId, int resourceId, Integer reservationId)
+      throws SQLException, IOException, ParseException {
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    return !resource.isAllowedMultiple()
+        && reservationDao.isUsedInDay(LocalDateTime.now(), resourceId, userId)
+        .stream()
+            .anyMatch(e -> {
+              boolean isAllowedMultiple = startDateTime.isAfter(
+                  LocalDate.parse(e.getStartDate(), formatter).atStartOfDay())
+                  && endDateTime.isBefore(LocalDate.parse(e.getEndDate(), formatter).atTime(LocalTime.MAX))
+                  && resourceId == e.getResourceId();
+              if (reservationId != null) {
+                isAllowedMultiple = isAllowedMultiple && e.getReservationId() != reservationId;
+              }
+              return isAllowedMultiple;
+            });
+
   }
 }

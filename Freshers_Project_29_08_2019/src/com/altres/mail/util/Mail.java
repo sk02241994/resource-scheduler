@@ -2,13 +2,10 @@ package com.altres.mail.util;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -40,9 +37,9 @@ public class Mail {
   private String name;
   private Properties properties;
   private Session session; 
-  private static final String HOST = "mumqa";
-  private static final String PORT = "25";
-  private static final String PROTOCOL = "smtp";
+  private static final String HOST = "smtp.gmail.com"; //"mumqa"
+  private static final String PORT = "587"; //"25"
+  //private static final String PROTOCOL = "smtp";
   
   public Mail(String email) {
     this.email = email;
@@ -66,15 +63,20 @@ public class Mail {
   private void setProperties() {
     this.properties.put("mail.smtp.host", HOST);
     this.properties.put("mail.smtp.port", PORT);
-    this.properties.put("mail.transport.protocol", PROTOCOL);
+    //this.properties.put("mail.transport.protocol", PROTOCOL);
     this.properties.put("mail.smtp.auth", "true");
+    // for gmail
+    this.properties.put("mail.smtp.starttls.enable", "true");
   }
   
   private void setSession() {
+    String googleEmail = "altres78@gmail.com";
+    String googlePassword = "Altres@123";
     this.session = Session.getInstance(properties, new Authenticator() {
       @Override
       protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(email, password);
+        //return new PasswordAuthentication(email, password);
+        return new PasswordAuthentication(googleEmail, googlePassword);
       }
     });
   }

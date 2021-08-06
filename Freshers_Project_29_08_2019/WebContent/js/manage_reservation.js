@@ -100,24 +100,23 @@ function validateEditForm(formObj) {
 	startTime = document.forms["edit_Reservation"]["start_time"];
 	endDate = document.forms["edit_Reservation"]["end_date"];
 	endTime = document.forms["edit_Reservation"]["end_time"];
-	
 	if (Date.parse(endDate.value + " " + endTime.value) < Date
 			.parse(startDate.value + " " + startTime.value)) {
-		document.getElementById("form-validation-editing").innerHTML = "End Date and time cannot be smaller" +
-				" than start date and time";
+		document.getElementById("form-validation-editing").innerHTML = "End Date and time cannot be before" +
+				" start date and time";
 		return false;
 	}
 	
-	if((Math.round(Date.parse(endDate.value+" "+endTime.value) - Date.parse(startDate.value+" "+startTime.value))/1000)/60 < 10 ){
-		document.getElementById("form-validation-editing").innerHTML = "Time difference must be greater than 10 minutes";
-		return false;
-	}
-
 	if (!getTime(startTime) || !getTime(endTime)) {
 		error++;
 	}
 	if (!getDate(startDate) || !getDate(endDate)) {
 		error++;
+	}
+	
+	if(((Math.round(Date.parse(endDate.value+" "+endTime.value) - Date.parse(startDate.value+" "+startTime.value))/1000)/60 < 10) && error == 0 ){
+		document.getElementById("form-validation-editing").innerHTML = "Time difference must be greater than 10 minutes";
+		return false;
 	}
 	
 	if(error > 0){
@@ -141,14 +140,8 @@ function validateAddForm(formObj){
 	endTime = document.forms["add_Reservation"]["end_time"];
 
 	if(Date.parse(endDate.value+" "+endTime.value) < Date.parse(startDate.value+" "+startTime.value)){
-		document.getElementById("form-validation-adding").innerHTML = "End Date and time cannot be smaller " +
-				"than start date and time";
-		return false;
-	}
-	
-	
-	if((Math.round(Date.parse(endDate.value+" "+endTime.value) - Date.parse(startDate.value+" "+startTime.value))/1000)/60 < 10 ){
-		document.getElementById("form-validation-adding").innerHTML = "Time difference must be greater than 10 minutes";
+		document.getElementById("form-validation-adding").innerHTML = "End Date and time cannot be before " +
+				"start date and time";
 		return false;
 	}
 	
@@ -157,6 +150,12 @@ function validateAddForm(formObj){
 	}
 	if(!getDate(startDate) || !getDate(endDate)){
 		error++;
+	}
+	
+	
+	if(((Math.round(Date.parse(endDate.value+" "+endTime.value) - Date.parse(startDate.value+" "+startTime.value))/1000)/60 < 10) && error == 0 ){
+		document.getElementById("form-validation-adding").innerHTML = "Time difference must be greater than 10 minutes";
+		return false;
 	}
 	
 	if(error > 0 ){

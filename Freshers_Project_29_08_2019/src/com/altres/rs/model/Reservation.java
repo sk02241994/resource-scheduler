@@ -193,10 +193,15 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Void> {
       LocalDateTime startDateTime, LocalDateTime endDateTime) throws SQLException, IOException, ParseException {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
     return !resource.isAllowedMultiple()
-        && reservationDao.isUsedInDay(LocalDateTime.now(), getResourceId(), getUserId()).stream().anyMatch(e -> {
-          boolean isAllowedMultiple = startDateTime.isAfter(LocalDate.parse(e.getStartDate(), formatter).atStartOfDay())
-              && endDateTime.isBefore(LocalDate.parse(e.getEndDate(), formatter).atTime(LocalTime.MAX))
+        && reservationDao.isUsedInDay(LocalDateTime.now(), getResourceId(), getUserId()).stream()
+        .anyMatch(e -> {
+          boolean isAllowedMultiple = (
+              (startDateTime.isAfter(LocalDate.parse(e.getStartDate(), formatter).atStartOfDay())
+              && startDateTime.isBefore(LocalDate.parse(e.getEndDate(), formatter).atTime(LocalTime.MAX))) 
+              || (endDateTime.isAfter(LocalDate.parse(e.getStartDate(), formatter).atStartOfDay())
+                  && endDateTime.isBefore(LocalDate.parse(e.getEndDate(), formatter).atTime(LocalTime.MAX))))
               && getResourceId() == e.getResourceId();
           if (getReservationId() != null) {
             isAllowedMultiple = isAllowedMultiple && !e.getReservationId().equals(getReservationId());

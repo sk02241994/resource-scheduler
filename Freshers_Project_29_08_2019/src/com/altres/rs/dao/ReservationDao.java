@@ -492,15 +492,13 @@ public class ReservationDao {
       DateFormat date = new SimpleDateFormat("MM/dd/yyyy");
       DateFormat time = new SimpleDateFormat("HH:mm");
 
-      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE start_date >= ?"
-          + " AND rs_resource_id = ? AND rs_user_id = ?";
+      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE "
+          + " rs_resource_id = ? AND rs_user_id = ?";
 
       statement = connection.prepareStatement(queryToFindValidDate);
 
-      statement.setString(1, startDateTime.toLocalDate().atStartOfDay().format(formatter));
-
-      statement.setInt(2, resourceId);
-      statement.setInt(3, userId);
+      statement.setInt(1, resourceId);
+      statement.setInt(2, userId);
 
       resultSet = statement.executeQuery();
       while (resultSet.next()) {

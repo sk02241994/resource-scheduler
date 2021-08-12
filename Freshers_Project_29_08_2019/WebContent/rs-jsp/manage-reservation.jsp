@@ -81,7 +81,7 @@ executeEvent(window, 'load', function(){
                     </td>
                 </tr>
                 <tr>
-                    <td><label>Resource Name<span class="required">*</span>:: </label></td>
+                    <td><label>Resource Name<span class="required">*</span>: </label></td>
                     <td><select name="resource_name">
                             <c:forEach items="${resources}" var="resource">
                                 <option

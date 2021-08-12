@@ -2,11 +2,9 @@ package com.altres.rs.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,9 +14,6 @@ import javax.servlet.http.HttpSession;
 import com.altres.connection.util.ValidateUser;
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.LoginDao;
-import com.altres.rs.dao.ReservationDao;
-import com.altres.rs.dao.ResourceDao;
-import com.altres.rs.dao.UserDao;
 import com.altres.rs.model.User;
 
 /**
@@ -26,6 +21,8 @@ import com.altres.rs.model.User;
  * also validating the user if valid and active or inactive user.
  */
 public class LoginServlet extends HttpServlet {
+  public static final String LOGGEDIN_USER = "loggedInUser";
+
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOGGER = Logger.getLogger(LoginServlet.class.getName());
@@ -43,8 +40,8 @@ public class LoginServlet extends HttpServlet {
     String logoutCommand = request.getParameter("action");
     HttpSession session = request.getSession(false);
     
-    if ("logout".equals(logoutCommand)) {
-      session.removeAttribute("login_servlet_email");
+    if ("logout".equals(logoutCommand) && session != null) {
+      session.removeAttribute(LOGGEDIN_USER);
       session.invalidate();
       response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     }
@@ -70,12 +67,9 @@ public class LoginServlet extends HttpServlet {
     String password = request.getParameter("user_password");
     User user = null;
 
-    HttpSession session = request.getSession();
-    session.setAttribute("login_servlet_email", emailAddress);
+    
     try {
       user = logindao.getUser(emailAddress, password);
-      session.setAttribute("login_servlet_user_id", user.getRsUserId());
-      session.setAttribute("login_is_admin", user.isAdmin());
     } catch (SQLException exception) {
       LOGGER.log(Level.SEVERE, "Exception while logging in as a valid user", exception);
       throw new ServletException("There was an error while trying to get your credentials");
@@ -100,35 +94,36 @@ public class LoginServlet extends HttpServlet {
 
     ValidateUser validateUser = new ValidateUser();  
     validateUser.setUser(user);
+    String contextPath = getServletContext().getContextPath();
+    String redirectUrl = "";
+    boolean hasError = false;
     
-    RequestDispatcher dispatcher = null;
     try {
       if (!validateUser.isValidLogin(emailAddress, password)) {
         request.setAttribute("errorMessage", "Invalid email or password");
-        dispatcher = request.getRequestDispatcher(Constants.LOGIN_JSP);
+        hasError = true;
       } else if (validateUser.isAdmin()) {
-        UserDao userDao = new UserDao();
-        request.setAttribute("user", userDao.getUser());
-        dispatcher = request.getRequestDispatcher(Constants.MANAGE_USER_JSP);
+        redirectUrl = "/UserServlet";
       } else if (validateUser.isEnabled()) {
 
         if (validateUser.isFirstLogin(password)) {
-          dispatcher = request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP);
-        }
-
-        else {
-          ReservationDao reservationDao = new ReservationDao();
-          ResourceDao resourceDao = new ResourceDao();
-          request.setAttribute("resources", resourceDao.getResourceForUser());
-          request.setAttribute("reservations", reservationDao.getReservationListing());
-          dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESERVATION_JSP);
+          redirectUrl = "/ChangePasswordServlet";
+        } else {
+          redirectUrl = "/ReservationServlet";
         }
       } else {
         request.setAttribute("disableError", "Account disabled please contact adminsitrator");
-        dispatcher = request.getRequestDispatcher(Constants.LOGIN_JSP);
+        hasError = true;
       }
-      dispatcher.forward(request, response);
-    } catch (SQLException | ParseException | IOException | ServletException exception) {
+      
+      if(!hasError) {
+        HttpSession session = request.getSession();
+        session.setAttribute(LOGGEDIN_USER, user);
+        response.sendRedirect(contextPath + redirectUrl);
+      } else {
+        request.getRequestDispatcher(Constants.LOGIN_JSP).forward(request, response);
+      }
+    } catch (IOException | ServletException exception) {
       LOGGER.log(Level.SEVERE, "Exception while logging in as a valid user", exception);
       throw new ServletException("There was an error while logging in");
     }

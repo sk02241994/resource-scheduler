@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.altres.rs.constants.Constants;
+import com.altres.rs.controller.LoginServlet;
+import com.altres.rs.model.User;
 
 
 /**
@@ -42,12 +44,18 @@ public class SessionFilter implements Filter {
     RequestDispatcher dispatcher = null;
 
     HttpSession session = httpServletRequest.getSession(false);
+    
+    User user = null;
+        if(session != null) {
+          user = (User) session.getAttribute(LoginServlet.LOGGEDIN_USER);
+        } 
+        
 
     if (httpServletRequest.getServletPath().endsWith(".css") || httpServletRequest.getServletPath().endsWith(".js")
         || httpServletRequest.getServletPath().endsWith(".png")) {
       chain.doFilter(request, response);
     } else {
-      if (session != null && (session.getAttribute("login_servlet_email") != null)
+      if (user != null && (user.getEmail_address() != null)
           || (httpServletRequest.getServletPath().endsWith("/LoginServlet"))) {
         chain.doFilter(request, response);
       } else {

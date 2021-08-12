@@ -14,13 +14,13 @@ function show(id){
 
 // Method to request for details of a reservation of a particular reservation id. 
 function getData(id){
-	window.location='ReservationServlet?form_action=calendarEdit&reservation_id='+id;	
+	window.location='ReservationServlet?form_type=calendar&form_action=edit&reservation_id='+id;	
 }
 
 // Method to request for delete a particular reservation by passing it's id.
 function getIdForDelete(id) {
 	if(confirm('Do you really want to delete this ?'))
-		window.location='ReservationServlet?form_action=calendarDelete&reservation_id='+id;
+		window.location='ReservationServlet?form_type=calendar&form_action=delete&reservation_id='+ id + '&form_type=calendar';
 }
 
 // Method to display all the reservations on the particular date in the calendar. 

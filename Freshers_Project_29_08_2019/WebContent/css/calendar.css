@@ -61,7 +61,9 @@ form {
 }
 
 label {
-	font-size: 24px;
+    margin-left: 5px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 span {
@@ -107,10 +109,6 @@ tr, td {
 	vertical-align: top;
 	text-align: left;
 	border-color: #969696;
-}
-
-td div:nth-child(n) {
-	height: 6vh;
 }
 
 #display-all-day-data {
@@ -178,14 +176,14 @@ td #editico {
 	background-color: #E6E5E1;
 }
 
-.edit-reservation {
+.edit-field {
 	position: fixed;
 	z-index: 1;
 	left: 0;
 	top: 0;
 	width: 100%;
 	height: 100%;
-	overflow: auto;
+	*overflow: auto;
 	background-color: rgba(0, 0, 0, 0.4);
 	padding-top: 60px;
 	padding: 5px 5px 5px 5px;
@@ -211,7 +209,7 @@ input[type=date], input[type=time] {
 	font-size: large;
 }
 
-.reservation-form {
+.edit-form {
 	background-color: #fefefe;
 	margin: 5% auto 15% auto;
 	border: 1px solid #888;
@@ -389,4 +387,62 @@ input[type=button] {
 	background-color: #CCC;
 	font-size: 24px;
 	font-family: serif;
+}
+
+.success-notification {
+	padding: 10px;
+	background-color: #4CAF50;
+	color: white;
+	font-size: 15px;
+	font-weight: bold;
+	text-align: center;
+	border-radius: 6px;
+	height: 15px;
+}
+
+div.error-notice{
+	background-color: #e74a4a;
+	margin-top: 5px;
+	border-radius: 5px;
+	color: #000000;
+}
+
+.close {
+	margin-left: 90%;
+	right: 25px;
+	top: 0;
+	color: black;
+	font-size: 35px;
+	font-weight: bold;
+}
+
+#edit-field>form>table {
+	border: 0px;
+	border-style: none;
+}
+
+#resource_name {
+	border: 0;
+	color: black;
+	font-size: 15px;
+	font-weight: bold;
+	width: 70%;
+	background: #c8c8c8;
+	width: 95%;
+	border-radius: 5px;
+}
+
+a.close-error {
+	text-decoration: none;
+	color: black;
+	float: right;
+	margin-right: 5%
+}
+
+div.error-notice{
+	background-color: #e74a4a;
+	margin-top: 5px;
+	border-radius: 5px;
+	color: #000000;
+	text-align: center;
 }

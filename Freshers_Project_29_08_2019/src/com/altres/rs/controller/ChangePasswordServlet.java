@@ -4,26 +4,34 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
+import java.util.regex.Pattern;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.altres.connection.util.PatternChecker;
+import org.apache.commons.lang3.StringUtils;
+
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.LoginDao;
+import com.altres.rs.model.User;
+import com.altres.utils.ResourceSchedulerServlet;
 
 /**
  * Servlet for change password jsp will validate if new user and make user change the password if user is logging in 
  * for first time.
  */
 @WebServlet("/ChangePasswordServlet")
-public class ChangePasswordServlet extends HttpServlet {
+public class ChangePasswordServlet extends ResourceSchedulerServlet<User> {
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOGGER = Logger.getLogger(ChangePasswordServlet.class.getName());
+  
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP).forward(request, response);
+  }
   
   /*
    * in this servlet after login this page is displayed for first time user and once changed the user will again be
@@ -38,40 +46,49 @@ public class ChangePasswordServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    PatternChecker checker = new PatternChecker();
-    
-    RequestDispatcher dispatcher = null;
-    String errorMessage = "Password must contain at least one letter, at least one number";
+    setRequestResponse(request, response);
+    clearNotices();
 
-    String emailAddress = (String) request.getSession(false).getAttribute("login_servlet_email");
-    String newpassword = request.getParameter("old_password");
-    String confirmPassword = request.getParameter("new_password");
+    boolean isValid = true;
 
-    if (!newpassword.equals(confirmPassword)) {
-      request.setAttribute("errorInPasswordMatching", "Password does not match. Please try again");
-      dispatcher = request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP);
-      dispatcher.forward(request, response);
-      return;
+    User user = getForm(request);
+    String emailAddress = null;
+    if (user != null) {
+      emailAddress = user.getEmail_address();
+    } else {
+      throw new ServletException("There was a problem while changing password");
     }
 
-    if (!checker.validatePassword(newpassword)) {
-      request.setAttribute("errorInPatternMatching", errorMessage);
-      dispatcher = request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP);
-      dispatcher.forward(request, response);
-      return;
+    String newpassword = getParameter("old_password");
+    String confirmPassword = getParameter("new_password");
+
+    if (!StringUtils.equals(newpassword, confirmPassword)) {
+      addErrorNotice("Password does not match. Please try again");
+      isValid = false;
     }
 
-    LoginDao logindao = new LoginDao();
-
-    try {
-      logindao.changePassword(emailAddress, newpassword);
-      request.setAttribute("success_message", "Password changed successfully please login again");
-      dispatcher = request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP);
-      dispatcher.forward(request, response);
-    } catch (SQLException exception) {
-      LOGGER.log(Level.SEVERE, "Exception while changing password", exception);
-      throw new ServletException("There was a problem while trying to change the password.");
+    if (!Pattern.matches("^(?=.*[0-9]+.*)(?=.*[a-zA-Z]+.*)[0-9a-zA-Z]{6,}$", newpassword)) {
+      addErrorNotice("Password must contain at least one letter, at least one number");
+      isValid = false;
     }
 
+    if(isValid) {
+      try {
+        LoginDao logindao = new LoginDao();
+        logindao.changePassword(emailAddress, newpassword);
+        addSuccessNotice("Password changed successfully please login again");
+      } catch (SQLException exception) {
+        LOGGER.log(Level.SEVERE, "Exception while changing password", exception);
+        throw new ServletException("There was a problem while trying to change the password.");
+      }
+    }
+
+    displayNotice();
+    forward(Constants.CHANGE_PASSWORD_JSP);
+  }
+
+  @Override
+  public User getForm(HttpServletRequest request) {
+    return ((User) request.getSession(false).getAttribute(LoginServlet.LOGGEDIN_USER));
   }
 }

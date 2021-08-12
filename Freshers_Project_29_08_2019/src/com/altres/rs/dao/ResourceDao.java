@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.altres.connection.util.SqlConnection;
 import com.altres.rs.model.Resource;
+import com.mysql.jdbc.Statement;
 
 /**
  * Dao for inserting a resource, updating a resource or deleting a resource and is used to display all the available resource
@@ -30,14 +31,17 @@ public class ResourceDao {
   /**
    * Method to save the resource in database.
    * 
-   * @param resourceList
+   * @param resource
+   * @return 
    * @throws SQLException
    * @throws IOException
    */
-  public void saveResource(Resource resourceList) throws SQLException, IOException {
+  private Integer saveResource(Resource resource) throws SQLException, IOException {
 
     Connection connection = null;
     PreparedStatement statement = null;
+    ResultSet generatedKeys = null;
+    Integer generatedId = null;
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
@@ -45,18 +49,29 @@ public class ResourceDao {
       String querytosave = "INSERT INTO rs_resource"
           + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit, is_allowed_multiple)"
           + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?)";
-      statement = connection.prepareStatement(querytosave);
+      statement = connection.prepareStatement(querytosave, Statement.RETURN_GENERATED_KEYS);
 
-      statement.setString(1, resourceList.getResourceName());
-      statement.setBoolean(2, resourceList.isEnabled());
-      statement.setString(3, resourceList.getResourceDescription());
-      statement.setString(4, resourceList.getResourceName());
-      statement.setString(5, resourceList.getResourceName());
-      statement.setObject(6, resourceList.getTimeLimit());
-      statement.setBoolean(7, resourceList.isAllowedMultiple());
+      statement.setString(1, resource.getResourceName());
+      statement.setBoolean(2, resource.isEnabled());
+      statement.setString(3, resource.getResourceDescription());
+      statement.setString(4, resource.getResourceName());
+      statement.setString(5, resource.getResourceName());
+      statement.setObject(6, resource.getTimeLimit());
+      statement.setBoolean(7, resource.isAllowedMultiple());
 
       statement.execute();
+      
+      generatedKeys = statement.getGeneratedKeys();
+      if (generatedKeys.next()) {
+        generatedId = generatedKeys.getInt(1);
+      }
+      return generatedId;
     } finally {
+
+      if (generatedKeys != null) {
+        generatedKeys.close();
+      }
+
       if (statement != null) {
         statement.close();
       }
@@ -175,7 +190,7 @@ public class ResourceDao {
    * @throws SQLException
    * @throws IOException
    */
-  public void updateResource(Resource resource) throws SQLException, IOException {
+  private void updateResource(Resource resource) throws SQLException, IOException {
 
     Connection connection = null;
     PreparedStatement statement = null;
@@ -290,5 +305,15 @@ public class ResourceDao {
       }
     }
     return resourcelist;
+  }
+
+  public Integer upsert(Resource resource) throws SQLException, IOException {
+    Integer resourceId = resource.getRsResourceId();
+    if(resource.getRsResourceId() != null) {
+      updateResource(resource);
+    } else {
+      resourceId = saveResource(resource);
+    }
+    return resourceId;
   }
 }

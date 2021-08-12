@@ -5,172 +5,148 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.ResourceDao;
 import com.altres.rs.model.Resource;
+import com.altres.utils.ResourceSchedulerServlet;
+import com.altres.utils.exception.ValidationServletException;
 
 /**
  * Servlet for adding, updating and deleting resources.
  */
 @WebServlet("/ResourceServlet")
-public class ResourceServlet extends HttpServlet {
+public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
+  private static final String FORM = "form";
+  private static final String RESOURCE_ID = "resource_id";
+  private static final String RESOURCES = "resources";
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(ResourceServlet.class.getName());
-  private static final String SUCCESS_MESSAGE = "success_message";
-  
+
   public ResourceServlet() {
     super();
   }
 
-  /* 
-   * Tthe administrator will be shown the available resources from database active and inactive, 
-   * the administrator will be able to add new resources delete the resource and change the status of the resources.
+  /*
+   * Tthe administrator will be shown the available resources from database active and inactive, the administrator will
+   * be able to add new resources delete the resource and change the status of the resources.
    * 
    * When request is made for update or delete id will be passed and the required actions will be performed.
-   *  
-   * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * 
+   * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
+   * javax.servlet.http.HttpServletResponse)
    */
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    String parameter = "resource_id";
+    setRequestResponse(request, response);
+    isAdmin();
+    clearNotices();
+
+    String parameter = "resourceId";
 
     ResourceDao resourceDao = new ResourceDao();
-    String formAction = request.getParameter("form_action");
-    
-    RequestDispatcher dispatcher = null;
+    String formAction = getParameter("form_action");
 
     try {
-      switch (formAction == null ? "" : formAction) {
+      switch (StringUtils.defaultIfBlank(formAction, "")) {
       case "edit":
-        int editId = Integer.parseInt(request.getParameter(parameter));
-        request.setAttribute("singleResource", resourceDao.getSingleResource(editId));
-        request.setAttribute("resources", resourceDao.getResource());
+        setAttribute(FORM, resourceDao.getSingleResource(NumberUtils.toInt(getParameter(parameter))));
         break;
 
       case "delete":
-        int deleteId = Integer.parseInt(request.getParameter(parameter));
-        resourceDao.deleteResource(deleteId);
-        request.setAttribute(SUCCESS_MESSAGE, "Resource has been deleted successfully");
-        request.setAttribute("resources", resourceDao.getResource());
-        break;
-
-      case "":
-        request.setAttribute("resources", resourceDao.getResource());
+        new Resource().validateDelete(NumberUtils.toInt(getParameter(parameter)));
+        resourceDao.deleteResource(NumberUtils.toInt(getParameter(parameter)));
+        addSuccessNotice("Resource has been deleted successfully");
         break;
 
       default:
         break;
       }
-      
-    }catch (SQLException exception) {
+      setAttribute(RESOURCES, resourceDao.getResource());
+
+    } catch (ValidationServletException e) {
+      addErrorNotice(e.getError());
+    } catch (SQLException exception) {
       request.setAttribute("resourcesDeleteError", "The resources cannot be deleted because they are already in use");
       LOGGER.log(Level.SEVERE, "Exception while getting all the resources", exception);
-      try {
-        request.setAttribute("resources", resourceDao.getResource());
-      } catch (SQLException e) {
-        throw new ServletException("Unable to retrieve data");
-      }
-    }
-    dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
-    dispatcher.forward(request, response);
+    } 
+
+    displayNotice();
+    forward(Constants.MANAGE_RESOURCE_JSP);
 
   }
 
-  /* 
-   * When request is made for edit operation, the operation to edit will be called. 
-   * When the  request is made to add resource, the operation to add will be called.
+  /*
+   * When request is made for edit operation, the operation to edit will be called. When the request is made to add
+   * resource, the operation to add will be called.
    * 
-   * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
+   * javax.servlet.http.HttpServletResponse)
    */
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    RequestDispatcher dispatcher = null;
+    setRequestResponse(request, response);
+    isAdmin();
+    clearNotices();
+
     ResourceDao resourceDao = new ResourceDao();
-    String editResourceField = request.getParameter("edit_resource");
-
-    String resourcename = request.getParameter("resource_name");
-    String description = request.getParameter("description");
-    boolean isEnabled = "on".equals(request.getParameter("isenabled"));
-    String timeLimitHours = request.getParameter("timeLimitHours").trim();
-    String timeLimitMinutes = request.getParameter("timeLimitMinutes").trim();
-    boolean isAllowedMultiple = "on".equals(request.getParameter("isAllowedMultiple"));
-
-    Resource resource = new Resource();
+    Resource resource = getForm(request);
 
     try {
-      if (resourcename.equals("")) {
-        request.setAttribute("error_message", "Resource name cannot be empty");
-        request.setAttribute("resources", resourceDao.getResource());
-        dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
-      } else if(!timeLimitHours.isEmpty() && !timeLimitMinutes.isEmpty() && isNotNumber(timeLimitHours, timeLimitMinutes)) {
-        request.setAttribute("error_message", "Please enter valid hours and minutes.");
-        request.setAttribute("resources", resourceDao.getResource());
-        dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
-      } else {
 
-        resource.setResourceName(resourcename);
-        resource.setResourceDescription(description);
-        resource.setEnabled(isEnabled);
-        resource.setIsAllowedMultiple(isAllowedMultiple);
-        Integer timeInMinutes = (toInt(timeLimitHours) * 60) + toInt(timeLimitMinutes);
-        resource.setTimeLimit(timeInMinutes == 0 ? null : timeInMinutes);
+      resource.sanitizeAndValidate();
 
-        if ("edit_resource".equals(editResourceField)) {
-          int id = Integer.parseInt(request.getParameter("resource_id"));
-          resource.setRsResourceId(id);
-          resourceDao.updateResource(resource);
-          request.setAttribute(SUCCESS_MESSAGE, "Resource has been updated successfully");
-          dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
+      Integer timeInMinutes = (NumberUtils.toInt(resource.getTimeLimitHours()) * 60)
+          + NumberUtils.toInt(resource.getTimeLimitMinutes());
+      resource.setTimeLimit(timeInMinutes == 0 ? null : timeInMinutes);
 
-        } else {
-
-          resourceDao.saveResource(resource);
-          request.setAttribute(SUCCESS_MESSAGE, "Resource has been saved successfully");
-          dispatcher = request.getRequestDispatcher(Constants.MANAGE_RESOURCE_JSP);
-        }
-
-      }
-      request.setAttribute("resources", resourceDao.getResource());
+      resourceDao.upsert(resource);
+      addSuccessNotice("Resource has been saved successfully");
+      setAttribute(RESOURCES, resourceDao.getResource());
+    } catch (ValidationServletException e) {
+      addModalErrorNotice(e.getError());
+      setAttribute(FORM, resource);
     } catch (SQLException exception) {
       LOGGER.log(Level.SEVERE, "Exception while posting all the details of resources", exception);
       throw new ServletException("Error while trying to post details");
     }
 
-    dispatcher.forward(request, response);
+    displayNotice();
+    forward(Constants.MANAGE_RESOURCE_JSP);
   }
 
-  /**
-   * Method to check if the given time entered is number or not.
-   * 
-   * @param timeLimitHours
-   * @param timeLimitMinutes
-   * @return
-   */
-  private boolean isNotNumber(String timeLimitHours, String timeLimitMinutes) {
-    try{
-      Integer.parseInt(timeLimitMinutes);
-      Integer.parseInt(timeLimitHours);
-    } catch (NumberFormatException e) {
-      return true;
-    }
-    return false;
-  }
+  @Override
+  public Resource getForm(HttpServletRequest request) {
+    Resource resource = new Resource();
 
-  private Integer toInt(String time) {
-    try{
-      return Integer.parseInt(time);
-    } catch (NumberFormatException e) {
-      return 0;
-    }
+    String resourcename = getParameter("resource_name");
+    String description = getParameter("description");
+    boolean isEnabled = "on".equals(getParameter("isenabled"));
+    String timeLimitHours = getParameter("timeLimitHours").trim();
+    String timeLimitMinutes = getParameter("timeLimitMinutes").trim();
+    boolean isAllowedMultiple = "on".equals(getParameter("isAllowedMultiple"));
+    Integer resourceId = NumberUtils.isCreatable(getParameter(RESOURCE_ID))
+        ? NumberUtils.toInt(getParameter(RESOURCE_ID))
+        : null;
+
+    resource.setRsResourceId(resourceId);
+    resource.setResourceName(resourcename);
+    resource.setResourceDescription(description);
+    resource.setEnabled(isEnabled);
+    resource.setTimeLimitHours(timeLimitHours);
+    resource.setTimeLimitMinutes(timeLimitMinutes);
+    resource.setIsAllowedMultiple(isAllowedMultiple);
+
+    return resource;
   }
 }

@@ -5,8 +5,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Change Password</title>
-<script type="text/javascript" src="/ResourceScheduler/js/validation.js"></script>
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
 <link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/login.css" />
+<script type="text/javascript" src="/ResourceScheduler/js/validation.js"></script>
+<script type="text/javascript" src="/ResourceScheduler/js/display-error.js"></script>
+<script type="text/javascript" src="/ResourceScheduler/js/common.js"></script>
 </head>
 <body>
 
@@ -18,7 +21,7 @@
 	
 	<div id="notification" class="notification">
 		<div class="change-password">
-			<span>${success_message}</span><br/>
+			<%@include file="notification.jsp"%>
 			<input type="button" value="ok" onclick="goToLogin()">
 		</div>
 		</div>
@@ -27,19 +30,14 @@
 	<c:otherwise>
 	<div class="change-password-center">
 	
-		<div class="form-validation">${errorMessageforchange} ${errorInPatternMatching} ${errorInPasswordMatching}</div>
-		
-		<form action="ChangePasswordServlet" method="post" onsubmit="return checkpassword(this);">
-		
-			<input type="text" name="uemail_address" value="${sessionScope.login_servlet_email}" readonly="readonly">
+		<form action="ChangePasswordServlet" method="post" onsubmit="return validateChangePassword(this);">
+			<%@include file="notification.jsp"%>
+			<%@include file="display-error.jsp"%>
+			<input type="text" name="uemail_address" value="${sessionScope.loggedInUser.email_address}" readonly="readonly">
 			
-			 <input
-				type="password" name="old_password" onblur="validatePassword(this);" placeholder="Enter Password" 
-				maxlength="50">
-				<b id="error-name"></b>
+			 <input type="password" name="old_password" placeholder="Enter Password" maxlength="50" />
 				
-			<input type="password" name="new_password" onblur="validatePassword(this);" placeholder="Confirm Password"
-			maxlength="50">
+			<input type="password" name="new_password" placeholder="Confirm Password" maxlength="50" />
 				
 			<input type="submit" value="Change Password">
 			

@@ -43,9 +43,20 @@ tr, td {
 	color: black;
 }
 
-#notification {
+.success-notification {
 	padding: 10px;
 	background-color: #4CAF50;
+	color: white;
+	font-size: 15px;
+	font-weight: bold;
+	text-align: center;
+	border-radius: 6px;
+	height: 15px;
+}
+
+.error-notification {
+	padding: 10px;
+	background-color: red;
 	color: white;
 	font-size: 15px;
 	font-weight: bold;
@@ -149,4 +160,18 @@ input[type=submit] {
 
 .cancel-container{
 	cursor: pointer;
+}
+
+a.close-error {
+	text-decoration: none;
+	color: black;
+	float: right;
+	margin-right: 5%
+}
+
+div.error-notice{
+	background-color: #e74a4a;
+	margin-top: 5px;
+	border-radius: 5px;
+	color: #000000;
 }

@@ -12,5 +12,6 @@ public class Constants {
   public static final String MANAGE_RESOURCE_JSP = "rs-jsp/manage-resource.jsp";
   public static final String MANAGE_USER_JSP = "rs-jsp/manage-user.jsp";
   public static final String NAV_VAR_JSP  = "rs-jsp/nav-bar.jsp";
+  public static final String CALENDAR = "rs-jsp/calendar.jsp";
   
 }

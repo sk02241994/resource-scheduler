@@ -53,7 +53,7 @@ public class Mail {
   private void getUserDetails() {
     try {
       UserDao userDao = new UserDao();
-      User user = userDao.getSingleUser(email);
+      User user = userDao.getUserByEmail(email);
       this.password = user.getPassword();
       this.name = user.getName();
     } catch (SQLException | IOException e) {
@@ -98,6 +98,7 @@ public class Mail {
       List<User> users = userDao.getUser();
       List<String> userEmails = users.stream()
           .filter(User::isAdmin)
+          .filter(User::isEnabled)
           .map(User::getEmail_address)
           .collect(Collectors.toList());
 

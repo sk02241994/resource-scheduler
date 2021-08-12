@@ -26,7 +26,7 @@ public class ValidateUser {
   }
 
   public boolean isFirstLogin(String password) {
-    return password.equals("user");
+    return "user".equals(password);
   }
 
 }

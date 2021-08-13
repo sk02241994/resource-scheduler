@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -25,7 +26,7 @@ import com.altres.utils.exception.ValidationServletException;
 /**
  * Class that contains getter and setter for reservation details.
  */
-public class Reservation implements PojoSavable<Void>, PojoDeletable<Void> {
+public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
 
   private Integer reservationId;
   private int userId;
@@ -92,8 +93,10 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Void> {
   }
 
   @Override
-  public void validateDelete(Void variable) throws ValidationServletException {
-    // Not implemented.
+  public void validateDelete(Integer variable) throws ValidationServletException {
+    if(variable != getUserId()) {
+      throw new ValidationServletException(Arrays.asList("Cannot delete the user."));
+    }
   }
 
   @Override
@@ -195,7 +198,7 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Void> {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     return !resource.isAllowedMultiple()
-        && reservationDao.isUsedInDay(LocalDateTime.now(), getResourceId(), getUserId()).stream()
+        && reservationDao.isUsedInDay(getResourceId(), getUserId()).stream()
         .anyMatch(e -> {
           boolean isAllowedMultiple = (
               (startDateTime.isAfter(LocalDate.parse(e.getStartDate(), formatter).atStartOfDay())
@@ -210,16 +213,33 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Void> {
         });
   }
 
-  private boolean isReserved(LocalDateTime startTime, LocalDateTime endTime, ReservationDao reservationDao)
+  private boolean isReserved(LocalDateTime startDateTime, LocalDateTime endDateTime, ReservationDao reservationDao)
       throws SQLException, IOException {
     List<Reservation> reservations = reservationDao.findAllByStartDateAndResource(LocalDateTime.now(), getResourceId());
     return reservations.stream()
         .anyMatch(e -> {
-          boolean isBooked = ((startTime.isAfter(LocalDateTime.parse(e.getStartDate()))
-              && startTime.isBefore(LocalDateTime.parse(e.getEndDate())))
-              || (endTime.isAfter(LocalDateTime.parse(e.getStartDate()))
-                  && endTime.isBefore(LocalDateTime.parse(e.getEndDate()))))
-              && (getResourceId() == e.getResourceId());
+          LocalDate startDate = startDateTime.toLocalDate();
+          LocalTime startTime = startDateTime.toLocalTime();
+          LocalDate endDate = endDateTime.toLocalDate();
+          LocalTime endTime = endDateTime.toLocalTime();
+
+          LocalDateTime resourceStartDateTime = LocalDateTime.parse(e.getStartDate());
+          LocalDateTime resourceEndDateTime = LocalDateTime.parse(e.getEndDate());
+
+          LocalDate resourceStartDate = resourceStartDateTime.toLocalDate();
+          LocalTime resourceStartTime = resourceStartDateTime.toLocalTime();
+          LocalDate resourceEndDate = resourceEndDateTime.toLocalDate();
+          LocalTime resourceEndTime = resourceEndDateTime.toLocalTime();
+
+          boolean isBooked = (((startDate.equals(resourceStartDate) || startDate.isAfter(resourceStartDate))
+
+              && (startDate.equals(resourceEndDate) || startDate.isBefore(resourceEndDate)))
+              && startTime.isAfter(resourceStartTime) && startTime.isBefore(resourceEndTime))
+              || (((endDate.equals(resourceStartDate) || endDate.isAfter(resourceStartDate))
+                  && (endDate.equals(resourceEndDate) || endDate.isBefore(resourceEndDate)))
+                  && endTime.isAfter(resourceStartTime) && endTime.isBefore(resourceEndTime))
+                  && (getResourceId() == e.getResourceId());
+
           if (getReservationId() != null) {
             isBooked = isBooked && !(getReservationId().equals(e.getReservationId()));
           }

@@ -7,9 +7,11 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.logging.Logger;
 
@@ -38,49 +40,33 @@ import net.fortuna.ical4j.validate.ValidationException;
 public class CalenderEvent {
 
   private static final Logger LOGGER = Logger.getLogger(CalenderEvent.class.getName());
-  public static String getAttachment (ReservationDetails reservationDetails, String email) {
+
+  public static String getAttachment(ReservationDetails reservationDetails, String email) {
     System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
     TimeZone zone = TimeZoneRegistryFactory.getInstance().createRegistry()
         .getTimeZone(ZoneId.systemDefault().toString());
     VTimeZone vTimeZone = zone.getVTimeZone();
     return new CalenderEvent().setEvent(reservationDetails, email, vTimeZone, zone);
   }
-  
+
   private String setEvent(ReservationDetails reservationDetails, String email, VTimeZone vTimeZone, TimeZone zone) {
-    
+
     LocalDate startDay = LocalDate.parse(reservationDetails.getStartDate());
     LocalTime startTime = LocalTime.parse(reservationDetails.getStartTime());
-    
+
     LocalDate endDay = LocalDate.parse(reservationDetails.getEndDate());
     LocalTime endTime = LocalTime.parse(reservationDetails.getEndTime());
-    
-    Calendar startDate = new GregorianCalendar();
-    startDate.setTimeZone(zone);
-    startDate.set(Calendar.MONTH, startDay.getMonthValue());
-    startDate.set(Calendar.DAY_OF_MONTH, startDay.getDayOfMonth());
-    startDate.set(Calendar.YEAR, startDay.getYear());
-    startDate.set(Calendar.HOUR_OF_DAY, startTime.getHour());
-    startDate.set(Calendar.MINUTE, startTime.getMinute());
-    startDate.set(Calendar.SECOND, 0);
-    
-    
-    Calendar endDate = new GregorianCalendar();
-    endDate.setTimeZone(zone);
-    endDate.set(Calendar.MONTH, endDay.getMonthValue());
-    endDate.set(Calendar.DAY_OF_MONTH, endDay.getDayOfMonth());
-    endDate.set(Calendar.YEAR, endDay.getYear());
-    endDate.set(Calendar.HOUR_OF_DAY, endTime.getHour());
-    endDate.set(Calendar.MINUTE, endTime.getMinute());
-    endDate.set(Calendar.SECOND, 0);
-    
+
     String eventName = reservationDetails.getResourceName();
-    DateTime start = new DateTime(startDate.getTime());
-    DateTime end = new DateTime(endDate.getTime());
+    LocalDateTime startDateTime = LocalDateTime.of(startDay, startTime);
+    LocalDateTime endDateTime = LocalDateTime.of(endDay, endTime);
+    DateTime start = new DateTime(Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+    DateTime end = new DateTime(Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant()));
     VEvent meeting = new VEvent(start, end, eventName);
 
     meeting.getProperties().add(vTimeZone.getTimeZoneId());
     meeting.getProperties().add(new Location(reservationDetails.getResourceName()));
-    
+
     return setHostInfo(email, meeting);
   }
 

@@ -7,6 +7,7 @@
  */
 function displayModalWindow(isEditButton, userId) {
     clearNotice();
+    enableButton();
 	if(!isEditButton){
 		document.getElementById('edit-field').style.display = 'none';
 	} else {
@@ -47,3 +48,16 @@ function runEvents (func, e) {
 	}
 }
 
+function disableButton(){
+    var button = document.getElementsByClassName('button');
+    for(var i = 0; i < button.length; i++) {
+        button[i].disabled = true;
+    }
+}
+
+function enableButton(){
+    var button = document.getElementsByClassName('button');
+    for(var i = 0; i < button.length; i++) {
+        button[i].disabled = false;
+    }
+}

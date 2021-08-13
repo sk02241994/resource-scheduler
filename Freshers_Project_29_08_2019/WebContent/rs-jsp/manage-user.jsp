@@ -81,8 +81,10 @@ executeEvent(window, 'load', function(){
                             <c:if test="${user.isAdmin()}">checked="checked"</c:if>></td>
                     </tr>
                     <tr>
-                        <td colspan="2"><input type="submit" value="Save"> <input type="button"
-                            onclick="document.getElementById('edit-field').style.display='none'" value="Cancel"></td>
+                        <td colspan="2">
+                        <input type="submit" value="Save" class="button"> 
+                        <input type="button" class="button" onclick="document.getElementById('edit-field').style.display='none'" value="Cancel">
+                        </td>
                     </tr>
                 </table>
             </form>

@@ -59,5 +59,6 @@ function validateForm(form) {
 		return false;
 	}
 
+	disableButton();
 	return true;
 }

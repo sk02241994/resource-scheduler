@@ -223,7 +223,7 @@ function validateEditForm(formObj) {
         displayNotice();
         return false;
     }
-
+	disableButton();
     return true;
 }
 

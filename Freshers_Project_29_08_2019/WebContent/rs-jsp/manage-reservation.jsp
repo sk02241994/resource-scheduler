@@ -121,9 +121,10 @@ executeEvent(window, 'load', function(){
                     <td><input type="checkbox" name="is_all_day" onclick="enableDisableTextBox(this)"></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><input type="submit" value="Save"> <input type="button"
-                        onclick="document.getElementById('edit-field').style.display='none'"
-                        class="add-reservation-button" value="Cancel"></td>
+                    <td colspan="2">
+                    <input type="submit" value="Save" class="button"> 
+                    <input type="button" onclick="document.getElementById('edit-field').style.display='none'"
+                        class="add-reservation-button button" value="Cancel"></td>
                 </tr>
             </table>
         </form>

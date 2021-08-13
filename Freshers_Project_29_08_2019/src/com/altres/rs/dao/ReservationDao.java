@@ -286,12 +286,11 @@ public class ReservationDao {
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
 
-      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE start_date >= ? AND rs_resource_id = ?";
+      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE rs_resource_id = ?";
 
       statement = connection.prepareStatement(queryToFindValidDate);
 
-      statement.setString(1, startDateTime.toLocalDate().atStartOfDay().format(formatter));
-      statement.setInt(2, resourceId);
+      statement.setInt(1, resourceId);
 
       resultSet = statement.executeQuery();
 
@@ -476,7 +475,7 @@ public class ReservationDao {
     return reservationDetails;
   }
 
-  public List<ReservationDetails> isUsedInDay(LocalDateTime startDateTime, int resourceId, int userId)
+  public List<ReservationDetails> isUsedInDay(int resourceId, int userId)
       throws SQLException, IOException, ParseException {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);

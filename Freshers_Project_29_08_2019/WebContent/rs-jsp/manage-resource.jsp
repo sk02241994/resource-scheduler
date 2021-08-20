@@ -109,7 +109,7 @@ executeEvent(window, 'load', function(){
                     <tr>
                         <td><label>Is Allow Employees On Probation</label></td>
                         <td><input type="checkbox" name="isAllowEmpOnProbation"
-                            <c:if test="${form.isPermanetEmployee()}">checked="checked"</c:if>></td>
+                            <c:if test="${form.isPermanentEmployee()}">checked="checked"</c:if>></td>
                     </tr>
                     <tr>
                         <td colspan="2">

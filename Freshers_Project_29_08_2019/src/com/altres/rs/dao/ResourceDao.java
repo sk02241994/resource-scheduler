@@ -48,7 +48,8 @@ public class ResourceDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytosave = "INSERT INTO rs_resource"
-          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit, is_allowed_multiple, max_user_bookings)"
+          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit,"
+          + " is_allowed_multiple, max_user_bookings, is_permanent_employee)"
           + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?, ?, ?)";
       statement = connection.prepareStatement(querytosave, Statement.RETURN_GENERATED_KEYS);
 

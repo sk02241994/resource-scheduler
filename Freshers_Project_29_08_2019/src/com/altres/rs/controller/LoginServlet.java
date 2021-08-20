@@ -112,7 +112,7 @@ public class LoginServlet extends HttpServlet {
           redirectUrl = "/ReservationServlet";
         }
       } else {
-        request.setAttribute("disableError", "Account disabled please contact adminsitrator");
+        request.setAttribute("disableError", "Account disabled, please contact administrator.");
         hasError = true;
       }
       

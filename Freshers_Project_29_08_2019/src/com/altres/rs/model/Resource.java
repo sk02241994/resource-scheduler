@@ -27,6 +27,7 @@ public class Resource implements PojoSavable<Void>, PojoDeletable<Integer> {
   private boolean isAllowedMultiple;
   private String timeLimitHours;
   private String timeLimitMinutes;
+  private Integer maxUserBooking;
 
   public String getResourceDescription() {
     return resourceDescription;
@@ -92,6 +93,14 @@ public class Resource implements PojoSavable<Void>, PojoDeletable<Integer> {
     return this.timeLimitMinutes;
   }
 
+  public void setMaxUserBooking(Integer maxUserBooking) {
+    this.maxUserBooking = maxUserBooking;
+  }
+  
+  public Integer getMaxUserBooking() {
+    return this.maxUserBooking;
+  }
+  
   @Override
   public void sanitize() {
     setResourceName(StringUtils.trimToNull(getResourceName()));

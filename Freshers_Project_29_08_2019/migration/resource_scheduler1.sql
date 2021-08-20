@@ -11,8 +11,10 @@ CREATE TABLE `rs_resource` (
   `updated_by` varchar(50) DEFAULT NULL,
   `updated_date` datetime DEFAULT NULL,
   `time_limit` int(11) DEFAULT NULL,
+  `is_allowed_multiple` tinyint(1) DEFAULT '1',
+  `max_user_bookings` int(11) DEFAULT NULL,
   PRIMARY KEY (`rs_resource_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8
 
 -- table for user
 
@@ -28,7 +30,7 @@ CREATE TABLE `rs_user` (
   `updated_date` datetime DEFAULT NULL,
   `is_admin` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`rs_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8
 
 -- table for reservation
 
@@ -47,5 +49,5 @@ CREATE TABLE `rs_reservation` (
   KEY `rs_resource_id` (`rs_resource_id`),
   CONSTRAINT `rs_reservation_ibfk_1` FOREIGN KEY (`rs_user_id`) REFERENCES `rs_user` (`rs_user_id`),
   CONSTRAINT `rs_reservation_ibfk_2` FOREIGN KEY (`rs_resource_id`) REFERENCES `rs_resource` (`rs_resource_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8
 

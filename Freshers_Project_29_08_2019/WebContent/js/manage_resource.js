@@ -36,6 +36,7 @@ function validateResource(formObj) {
 		displayNotice();
 		return false;
 	}
+	
 	disableButton();
 	return true;
 }

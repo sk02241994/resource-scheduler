@@ -446,3 +446,14 @@ div.error-notice{
 	color: #000000;
 	text-align: center;
 }
+
+.error-notification {
+	padding: 10px;
+	background-color: red;
+	color: white;
+	font-size: 15px;
+	font-weight: bold;
+	text-align: center;
+	border-radius: 6px;
+	height: 15px;
+}

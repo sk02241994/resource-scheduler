@@ -61,7 +61,7 @@ public class ReservationDao {
           + "rs_user.name, " + "rs_reservation.rs_resource_id, "
           + "rs_resource.resource_name, " + "rs_reservation.start_date, " + "rs_reservation.end_date "
           + "FROM rs_user, rs_resource, rs_reservation " + "WHERE rs_user.rs_user_id = rs_reservation.rs_user_id AND "
-          + "rs_resource.rs_resource_id = rs_reservation.rs_resource_id ";
+          + "rs_resource.rs_resource_id = rs_reservation.rs_resource_id ORDER BY start_date";
 
       statement = connection.prepareStatement(queryForReservation);
 
@@ -286,7 +286,7 @@ public class ReservationDao {
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
 
-      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE rs_resource_id = ?";
+      String queryToFindValidDate = "SELECT * FROM rs_reservation WHERE rs_resource_id = ? ORDER BY start_date";
 
       statement = connection.prepareStatement(queryToFindValidDate);
 
@@ -563,7 +563,7 @@ public class ReservationDao {
       DateFormat date = new SimpleDateFormat("MM/dd/yyyy");
       DateFormat time = new SimpleDateFormat("HH:mm");
 
-      String queryForReservation = "SELECT * FROM rs_reservation WHERE rs_resource_id = ?";
+      String queryForReservation = "SELECT * FROM rs_reservation WHERE rs_resource_id = ? ORDER BY start_date";
 
       statement = connection.prepareStatement(queryForReservation);
 

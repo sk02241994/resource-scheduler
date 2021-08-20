@@ -20,6 +20,7 @@ import com.altres.mail.util.Mail;
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.ReservationDao;
 import com.altres.rs.dao.ResourceDao;
+import com.altres.rs.model.Reservation;
 import com.altres.rs.model.ReservationDetails;
 import com.altres.rs.model.Resource;
 import com.altres.rs.model.User;
@@ -78,8 +79,6 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
     int userId = user.getRsUserId();
     boolean isAdmin = user.isAdmin();
 
-    List<Resource> resources = new ArrayList<>();
-    List<ReservationDetails> reservationDetails = new ArrayList<>();
 
     try {
 
@@ -89,10 +88,31 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
       }
 
       if (StringUtils.equals("delete", formAction) && StringUtils.isNotBlank(getParameter(RESERVATION_ID))) {
+        Reservation reservation = reservationDao.getSingleReservation(NumberUtils.toInt(getParameter(RESERVATION_ID)), userId, user.isAdmin());
+        reservation.validateDelete(userId);
         reservationDao.deleteReservation(NumberUtils.toInt(getParameter(RESERVATION_ID)), userId);
         addSuccessNotice("Reservation deleted successfully");
       }
 
+    }  catch (ValidationServletException e) {
+      addErrorNotice(e.getError());
+    } catch (SQLException | ParseException exception) {
+      LOGGER.log(Level.SEVERE, "Exception while getting all the reservations", exception);
+      throw new ServletException("There was an error while trying to update your credentials");
+    }
+
+    setReservationListing(resourceDao, reservationDao, formType, response);
+    displayNotice();
+    forward(StringUtils.isNotBlank(formType) && StringUtils.equals("calendar", formType) ? Constants.CALENDAR
+        : Constants.MANAGE_RESERVATION_JSP);
+
+  }
+
+  private void setReservationListing(ResourceDao resourceDao, ReservationDao reservationDao, String formType,
+      HttpServletResponse response) throws ServletException {
+    List<Resource> resources = new ArrayList<>();
+    List<ReservationDetails> reservationDetails = new ArrayList<>();
+    try {
       reservationDetails.addAll(reservationDao.getReservationListing());
       if (StringUtils.isNotBlank(formType) && StringUtils.equals("calendar", formType)) {
         response.setContentType(APPLICATION_JSON);
@@ -100,21 +120,15 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
       } else {
         setAttribute(RESERVATIONS, reservationDetails);
       }
-
       resources.addAll(resourceDao.getResourceForUser());
-
-    } catch (SQLException | ParseException exception) {
-      LOGGER.log(Level.SEVERE, "Exception while getting all the reservations", exception);
+      setAttribute(RESOURCES, resources);
+    } catch (SQLException | ParseException | IOException e) {
+      LOGGER.log(Level.SEVERE, "Exception while getting all the reservations", e);
       throw new ServletException("There was an error while trying to update your credentials");
     }
 
-    setAttribute(RESOURCES, resources);
-    displayNotice();
-    forward(StringUtils.isNotBlank(formType) && StringUtils.equals("calendar", formType) ? Constants.CALENDAR
-        : Constants.MANAGE_RESERVATION_JSP);
-
   }
-
+  
   /**
    * Method for converting the data from database to json string format.
    * 
@@ -198,7 +212,7 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
     }
 
     if(isMailSent) {
-      addSuccessNotice("Date and time has been updated");
+      addSuccessNotice("The resource has been successfully booked.");
     }
 
     List<ReservationDetails> reservationDetails = reservationDao.getReservationListing(); 

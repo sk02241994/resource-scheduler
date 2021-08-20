@@ -129,9 +129,5 @@ executeEvent(window, 'load', function(){
             </table>
         </form>
     </div>
-    <c:if test="${reservations.size() gt 10}">
-        <button onclick="document.getElementById('add-reservation').style.display='block'"
-            class="add-reservation-button">Add</button>
-    </c:if>
 </body>
 </html>

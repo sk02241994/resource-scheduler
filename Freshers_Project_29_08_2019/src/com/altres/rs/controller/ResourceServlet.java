@@ -2,6 +2,8 @@ package com.altres.rs.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,8 +57,11 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
 
     ResourceDao resourceDao = new ResourceDao();
     String formAction = getParameter("form_action");
+    List<Resource> resources = new ArrayList<>();
 
     try {
+      resources.addAll(resourceDao.getResource());
+
       switch (StringUtils.defaultIfBlank(formAction, "")) {
       case "edit":
         setAttribute(FORM, resourceDao.getSingleResource(NumberUtils.toInt(getParameter(parameter))));
@@ -71,7 +76,6 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
       default:
         break;
       }
-      setAttribute(RESOURCES, resourceDao.getResource());
 
     } catch (ValidationServletException e) {
       addErrorNotice(e.getError());
@@ -80,6 +84,7 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
       LOGGER.log(Level.SEVERE, "Exception while getting all the resources", exception);
     } 
 
+    setAttribute(RESOURCES, resources);
     displayNotice();
     forward(Constants.MANAGE_RESOURCE_JSP);
 
@@ -138,6 +143,10 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
     Integer resourceId = NumberUtils.isCreatable(getParameter(RESOURCE_ID))
         ? NumberUtils.toInt(getParameter(RESOURCE_ID))
         : null;
+        Integer maxUserBooking = NumberUtils.isCreatable(getParameter("max_user_booking"))
+            ? NumberUtils.toInt(getParameter("max_user_booking"))
+            : null;    
+        
 
     resource.setRsResourceId(resourceId);
     resource.setResourceName(resourcename);
@@ -146,6 +155,7 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
     resource.setTimeLimitHours(timeLimitHours);
     resource.setTimeLimitMinutes(timeLimitMinutes);
     resource.setIsAllowedMultiple(isAllowedMultiple);
+    resource.setMaxUserBooking(maxUserBooking);
 
     return resource;
   }

@@ -27,6 +27,7 @@ public class ResourceDao {
   public static final String COL_UPDATED_DATE = "updated_date";
   public static final String COL_TIME_LIMIT = "time_limit";
   public static final String COL_IS_ALLOWED_MULTIPLE = "is_allowed_multiple";
+  public static final String COL_MAX_USER_BOOKINGS = "max_user_bookings";
 
   /**
    * Method to save the resource in database.
@@ -47,8 +48,8 @@ public class ResourceDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytosave = "INSERT INTO rs_resource"
-          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit, is_allowed_multiple)"
-          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?)";
+          + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit, is_allowed_multiple, max_user_bookings)"
+          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?, ?)";
       statement = connection.prepareStatement(querytosave, Statement.RETURN_GENERATED_KEYS);
 
       statement.setString(1, resource.getResourceName());
@@ -58,6 +59,7 @@ public class ResourceDao {
       statement.setString(5, resource.getResourceName());
       statement.setObject(6, resource.getTimeLimit());
       statement.setBoolean(7, resource.isAllowedMultiple());
+      statement.setObject(8, resource.getMaxUserBooking());
 
       statement.execute();
       
@@ -113,6 +115,7 @@ public class ResourceDao {
         resource.setResourceDescription(resultSet.getString(COL_DESCRIPTION));
         resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
         resource.setIsAllowedMultiple(resultSet.getBoolean(COL_IS_ALLOWED_MULTIPLE));
+        resource.setMaxUserBooking(resultSet.getInt(COL_MAX_USER_BOOKINGS));
         resourcelist.add(resource);
       }
     } finally {
@@ -164,6 +167,7 @@ public class ResourceDao {
         resource.setResourceDescription(resultSet.getString(COL_DESCRIPTION));
         resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
         resource.setIsAllowedMultiple(resultSet.getBoolean(COL_IS_ALLOWED_MULTIPLE));
+        resource.setMaxUserBooking((Integer)resultSet.getObject(COL_MAX_USER_BOOKINGS));
       }
     } finally {
 
@@ -199,7 +203,7 @@ public class ResourceDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytoupdate = "UPDATE rs_resource SET resource_name = ?, is_active = ?, description = ?, time_limit = ?, "
-          + "is_allowed_multiple = ? WHERE rs_resource_id = ?";
+          + "is_allowed_multiple = ?, max_user_bookings = ? WHERE rs_resource_id = ?";
 
       statement = connection.prepareStatement(querytoupdate);
 
@@ -208,7 +212,8 @@ public class ResourceDao {
       statement.setString(3, resource.getResourceDescription());
       statement.setObject(4, resource.getTimeLimit());
       statement.setObject(5, resource.isAllowedMultiple());
-      statement.setInt(6, resource.getRsResourceId());
+      statement.setObject(6, resource.getMaxUserBooking());
+      statement.setInt(7, resource.getRsResourceId());
 
       statement.executeUpdate();
 

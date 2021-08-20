@@ -90,8 +90,5 @@ executeEvent(window, 'load', function(){
             </form>
         </div>
     </div>
-    <c:if test="${users.size() gt 10 }">
-        <button onclick="document.getElementById('add-user').style.display='block'" class="add-button">Add</button>
-    </c:if>
 </body>
 </html>

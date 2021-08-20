@@ -95,7 +95,7 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
   @Override
   public void validateDelete(Integer variable) throws ValidationServletException {
     if(variable != getUserId()) {
-      throw new ValidationServletException(Arrays.asList("Cannot delete the user."));
+      throw new ValidationServletException(Arrays.asList("Cannot delete other user's booking."));
     }
   }
 
@@ -155,8 +155,10 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
           errors.add("Cannot reserve the resource more than once");
         }
 
-        if (isReserved(startDateTime, endDateTime, reservationDao)) {
-          errors.add("Date and time already reserved for resource please try another date and time.");
+        if (resource.getMaxUserBooking() == null && isReserved(startDateTime, endDateTime, reservationDao)) {
+          errors.add("The resource is already booked for selected date and time.");
+        } else if (hasMoreUsers(reservationDao, resource, startDateTime, endDateTime)){
+          errors.add("The resource cannot be booked by more than " + resource.getMaxUserBooking() + " users at the same time.");
         }
 
       } catch (SQLException | IOException | ParseException e) {
@@ -245,5 +247,42 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
           }
           return isBooked;
         });
+  }
+
+
+  private boolean hasMoreUsers(ReservationDao reservationDao, Resource resource, LocalDateTime startDateTime,
+      LocalDateTime endDateTime) throws SQLException, IOException {
+    List<Reservation> reservations = reservationDao.findAllByStartDateAndResource(LocalDateTime.now(), getResourceId());
+    long count = reservations.stream().filter(e -> {
+
+      LocalDate startDate = startDateTime.toLocalDate();
+      LocalTime startTime = startDateTime.toLocalTime();
+      LocalDate endDate = endDateTime.toLocalDate();
+      LocalTime endTime = endDateTime.toLocalTime();
+
+      LocalDateTime resourceStartDateTime = LocalDateTime.parse(e.getStartDate());
+      LocalDateTime resourceEndDateTime = LocalDateTime.parse(e.getEndDate());
+
+      LocalDate resourceStartDate = resourceStartDateTime.toLocalDate();
+      LocalTime resourceStartTime = resourceStartDateTime.toLocalTime();
+      LocalDate resourceEndDate = resourceEndDateTime.toLocalDate();
+      LocalTime resourceEndTime = resourceEndDateTime.toLocalTime();
+
+      boolean isBooked = (((startDate.equals(resourceStartDate) || startDate.isAfter(resourceStartDate))
+          && (startDate.equals(resourceEndDate) || startDate.isBefore(resourceEndDate)))
+          && (startTime.equals(resourceStartTime) || startTime.isAfter(resourceStartTime)) && 
+          (startTime.equals(resourceEndTime) || startTime.isBefore(resourceEndTime))
+          || (((endDate.equals(resourceStartDate) || endDate.isAfter(resourceStartDate))
+              && (endDate.equals(resourceEndDate) || endDate.isBefore(resourceEndDate)))
+              && (endTime.equals(resourceStartTime) || endTime.isAfter(resourceStartTime)) 
+              && (endTime.equals(resourceEndTime) || endTime.isBefore(resourceEndTime)))
+              && (getResourceId() == e.getResourceId()));
+
+      if (getReservationId() != null) {
+        isBooked = isBooked && !(getReservationId().equals(e.getReservationId()));
+      }
+      return isBooked;
+    }).count();
+    return resource.getMaxUserBooking() != null && count >= resource.getMaxUserBooking();
   }
 }

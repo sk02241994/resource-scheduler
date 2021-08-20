@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.altres.utils.Gender;
 import org.apache.commons.lang3.StringUtils;
 
 import com.altres.utils.PojoSavable;
@@ -23,6 +24,8 @@ public class User implements Serializable, PojoSavable<Void> {
   private String password;
   private boolean isEnabled;
   private boolean isAdmin;
+  private Gender gender;
+  private boolean isPermanentEmployee;
 
   public String getName() {
     return name;
@@ -70,6 +73,21 @@ public class User implements Serializable, PojoSavable<Void> {
 
   public boolean isAdmin() {
     return this.isAdmin;
+  }
+
+  public void setGender(Gender gender){
+    this.gender = gender;
+  }
+
+  public Gender getGender(){
+    return this.gender;
+  }
+
+  public void setIsPermanentEmployee (boolean isPermanentEmployee) {
+    this.isPermanentEmployee = isPermanentEmployee;
+  }
+  public boolean isPermanentEmployee (){
+    return this.isPermanentEmployee;
   }
 
   @Override

@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page import="com.altres.utils.Gender" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -79,6 +80,18 @@ executeEvent(window, 'load', function(){
                         <td><label>Is Admin</label></td>
                         <td><input type="checkbox" name="isadmin"
                             <c:if test="${user.isAdmin()}">checked="checked"</c:if>></td>
+                    </tr>
+                    <tr>
+                        <td><label>Gender</label></td>
+                        <td>
+                            <input type="radio" name="gender" value="M" <c:if test="${user.gender eq Gender.M}">checked</c:if>> Male </input>
+                            <input type="radio" name="gender" value="F" <c:if test="${user.gender eq Gender.F}">checked</c:if>> Female </input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>Is Permanent Employee</label></td>
+                        <td><input type="checkbox" name="isPermanentEmployee"
+                            <c:if test="${user.isPermanentEmployee()}">checked="checked"</c:if>></td>
                     </tr>
                     <tr>
                         <td colspan="2">

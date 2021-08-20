@@ -146,7 +146,7 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
         Integer maxUserBooking = NumberUtils.isCreatable(getParameter("max_user_booking"))
             ? NumberUtils.toInt(getParameter("max_user_booking"))
             : null;    
-        
+    boolean isAllowEmpOnProbation = "on".equals(getParameter("isAllowEmpOnProbation"));
 
     resource.setRsResourceId(resourceId);
     resource.setResourceName(resourcename);
@@ -156,6 +156,7 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
     resource.setTimeLimitMinutes(timeLimitMinutes);
     resource.setIsAllowedMultiple(isAllowedMultiple);
     resource.setMaxUserBooking(maxUserBooking);
+    resource.setIsPermanentEmployee(isAllowEmpOnProbation);
 
     return resource;
   }

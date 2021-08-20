@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.altres.connection.util.SqlConnection;
 import com.altres.rs.model.User;
+import com.altres.utils.Gender;
 import com.mysql.jdbc.Statement;
 
 /**
@@ -16,12 +17,14 @@ import com.mysql.jdbc.Statement;
  */
 public class UserDao {
 
-  private static final String COL_USER_ID = "rs_user_id";
-  private static final String COL_NAME = "name";
-  private static final String COL_EMAIL_ADDRESS = "email_address";
-  private static final String COL_IS_ACTIVE = "is_active";
-  private static final String COL_IS_ADMIN = "is_admin";
-  private static final String COL_PASSWORD = "password";
+  public static final String COL_USER_ID = "rs_user_id";
+  public static final String COL_NAME = "name";
+  public static final String COL_EMAIL_ADDRESS = "email_address";
+  public static final String COL_IS_ACTIVE = "is_active";
+  public static final String COL_IS_ADMIN = "is_admin";
+  public static final String COL_PASSWORD = "password";
+  public static final String COL_GENDER = "gender";
+  public static final String COL_IS_PERMANENT_EMPLOYEE = "is_permanent_employee";
 
   /**
    * Method used to save user details.
@@ -41,8 +44,9 @@ public class UserDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytosave = "INSERT INTO rs_user (name,  email_address, password,"
-          + " is_active, created_by, created_date, updated_by," + " updated_date, is_admin) \r\n"
-          + " VALUES (?, ?, ?, ?, ?, now(), ?, now(), ?)";
+          + " is_active, created_by, created_date, updated_by,"
+          + " updated_date, is_admin, gender, is_permanent_employee) \r\n"
+          + " VALUES (?, ?, ?, ?, ?, now(), ?, now(), ?, ?, ?)";
 
       statement = connection.prepareStatement(querytosave, Statement.RETURN_GENERATED_KEYS);
 
@@ -53,6 +57,8 @@ public class UserDao {
       statement.setString(5, user.getName());
       statement.setString(6, user.getName());
       statement.setBoolean(7, user.isAdmin());
+      statement.setString(8, user.getGender().toString());
+      statement.setBoolean(9, user.isPermanentEmployee());
 
       statement.executeUpdate();
 
@@ -103,6 +109,8 @@ public class UserDao {
         user.setEmail_address(resultSet.getString(COL_EMAIL_ADDRESS));
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
+        user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
         userlist.add(user);
       }
     } finally {
@@ -150,6 +158,8 @@ public class UserDao {
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
         user.setPassword(resultSet.getString(COL_PASSWORD));
+        user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
       }
     } finally {
 
@@ -184,7 +194,9 @@ public class UserDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytosave = "UPDATE rs_user SET name= ?, email_address = ?,"
-          + " is_active = ?, updated_by = ?, updated_date = now(), is_admin = ? WHERE" + " rs_user_id = ?";
+          + " is_active = ?, updated_by = ?, updated_date = now(), is_admin = ?, "
+          + " gender = ?, is_permanent_employee = ?"
+          + " WHERE rs_user_id = ?";
 
       statement = connection.prepareStatement(querytosave, Statement.RETURN_GENERATED_KEYS);
 
@@ -193,7 +205,9 @@ public class UserDao {
       statement.setBoolean(3, user.isEnabled());
       statement.setString(4, user.getName());
       statement.setBoolean(5, user.isAdmin());
-      statement.setObject(6, user.getRsUserId());
+      statement.setString(6, user.getGender().toString());
+      statement.setBoolean(7, user.isPermanentEmployee());
+      statement.setObject(8, user.getRsUserId());
 
       statement.executeUpdate();
 
@@ -230,7 +244,7 @@ public class UserDao {
   /**
    * Method used to get a single user details to be display.
    * 
-   * @param userId
+   * @param emailAddress
    * @return User
    * @throws SQLException
    * @throws IOException
@@ -258,6 +272,8 @@ public class UserDao {
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
         user.setPassword(resultSet.getString(COL_PASSWORD));
+        user.setGender(Gender.valueOf(resultSet.getString(COL_PASSWORD)));
+        user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
       }
     } finally {
 

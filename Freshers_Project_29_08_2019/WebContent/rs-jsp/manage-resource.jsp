@@ -107,6 +107,11 @@ executeEvent(window, 'load', function(){
                         <td><input type="text" name="max_user_booking" value="${form.maxUserBooking}" onkeyup="this.value=onlyNumber(this)"></td>
                     </tr>
                     <tr>
+                        <td><label>Is Allow Employees On Probation</label></td>
+                        <td><input type="checkbox" name="isAllowEmpOnProbation"
+                            <c:if test="${form.isPermanetEmployee()}">checked="checked"</c:if>></td>
+                    </tr>
+                    <tr>
                         <td colspan="2">
                             <input type="submit" value="Save" class="button"> 
                             <input type="button" class="button" onclick="document.getElementById('edit-field').style.display='none'" value="Cancel">

@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.altres.utils.Gender;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -107,6 +108,8 @@ public class UserServlet extends ResourceSchedulerServlet<User> {
     Integer userId = NumberUtils.isCreatable(getParameter(USER_ID))
         ? NumberUtils.toInt(getParameter(USER_ID))
         : null;
+    Gender gender = Gender.valueOf(getParameter("gender"));
+    boolean isPermanetEmployee = "on".equals(getParameter("isPermanentEmployee"));
 
     User user = new User();
 
@@ -115,6 +118,8 @@ public class UserServlet extends ResourceSchedulerServlet<User> {
     user.setEnabled(isEnabled);
     user.setIsAdmin(isAdmin);
     user.setRsUserId(userId);
+    user.setGender(gender);
+    user.setIsPermanentEmployee(isPermanetEmployee);
 
     return user;
   }

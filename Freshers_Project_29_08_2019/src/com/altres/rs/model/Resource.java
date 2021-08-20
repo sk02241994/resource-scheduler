@@ -28,6 +28,7 @@ public class Resource implements PojoSavable<Void>, PojoDeletable<Integer> {
   private String timeLimitHours;
   private String timeLimitMinutes;
   private Integer maxUserBooking;
+  private boolean isPermanentEmployee;
 
   public String getResourceDescription() {
     return resourceDescription;
@@ -99,6 +100,14 @@ public class Resource implements PojoSavable<Void>, PojoDeletable<Integer> {
   
   public Integer getMaxUserBooking() {
     return this.maxUserBooking;
+  }
+
+  public void setIsPermanentEmployee(boolean isPermanentEmployee){
+    this.isPermanentEmployee = isPermanentEmployee;
+  }
+
+  public boolean isPermanentEmployee (){
+    return this.isPermanentEmployee;
   }
   
   @Override

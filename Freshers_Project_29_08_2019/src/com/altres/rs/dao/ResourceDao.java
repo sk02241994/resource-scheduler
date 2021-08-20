@@ -28,7 +28,7 @@ public class ResourceDao {
   public static final String COL_TIME_LIMIT = "time_limit";
   public static final String COL_IS_ALLOWED_MULTIPLE = "is_allowed_multiple";
   public static final String COL_MAX_USER_BOOKINGS = "max_user_bookings";
-
+  public static final String COL_IS_PERMANENT_EMPLOYEE = "is_permanent_employee";
   /**
    * Method to save the resource in database.
    * 
@@ -49,7 +49,7 @@ public class ResourceDao {
 
       String querytosave = "INSERT INTO rs_resource"
           + " (resource_name, is_active, description, created_by, created_date, updated_by, updated_date, time_limit, is_allowed_multiple, max_user_bookings)"
-          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?, ?)";
+          + " VALUES(?, ?, ?, ?, now(), ?, now(), ?, ?, ?, ?)";
       statement = connection.prepareStatement(querytosave, Statement.RETURN_GENERATED_KEYS);
 
       statement.setString(1, resource.getResourceName());
@@ -60,6 +60,7 @@ public class ResourceDao {
       statement.setObject(6, resource.getTimeLimit());
       statement.setBoolean(7, resource.isAllowedMultiple());
       statement.setObject(8, resource.getMaxUserBooking());
+      statement.setBoolean(9, resource.isPermanentEmployee());
 
       statement.execute();
       
@@ -116,6 +117,7 @@ public class ResourceDao {
         resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
         resource.setIsAllowedMultiple(resultSet.getBoolean(COL_IS_ALLOWED_MULTIPLE));
         resource.setMaxUserBooking(resultSet.getInt(COL_MAX_USER_BOOKINGS));
+        resource.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
         resourcelist.add(resource);
       }
     } finally {
@@ -168,6 +170,7 @@ public class ResourceDao {
         resource.setTimeLimit(resultSet.getInt(COL_TIME_LIMIT));
         resource.setIsAllowedMultiple(resultSet.getBoolean(COL_IS_ALLOWED_MULTIPLE));
         resource.setMaxUserBooking((Integer)resultSet.getObject(COL_MAX_USER_BOOKINGS));
+        resource.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
       }
     } finally {
 
@@ -203,7 +206,7 @@ public class ResourceDao {
       connection = SqlConnection.getInstance().initalizeConnection();
 
       String querytoupdate = "UPDATE rs_resource SET resource_name = ?, is_active = ?, description = ?, time_limit = ?, "
-          + "is_allowed_multiple = ?, max_user_bookings = ? WHERE rs_resource_id = ?";
+          + "is_allowed_multiple = ?, max_user_bookings = ?, is_permanent_employee = ? WHERE rs_resource_id = ?";
 
       statement = connection.prepareStatement(querytoupdate);
 
@@ -213,7 +216,8 @@ public class ResourceDao {
       statement.setObject(4, resource.getTimeLimit());
       statement.setObject(5, resource.isAllowedMultiple());
       statement.setObject(6, resource.getMaxUserBooking());
-      statement.setInt(7, resource.getRsResourceId());
+      statement.setBoolean(7, resource.isPermanentEmployee());
+      statement.setInt(8, resource.getRsResourceId());
 
       statement.executeUpdate();
 

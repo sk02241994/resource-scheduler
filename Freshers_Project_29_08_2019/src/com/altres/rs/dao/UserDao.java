@@ -272,7 +272,7 @@ public class UserDao {
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
         user.setPassword(resultSet.getString(COL_PASSWORD));
-        user.setGender(Gender.valueOf(resultSet.getString(COL_PASSWORD)));
+        user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
         user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
       }
     } finally {

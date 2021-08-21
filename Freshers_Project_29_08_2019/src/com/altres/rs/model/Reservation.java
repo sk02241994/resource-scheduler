@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import com.altres.rs.dao.UserDao;
 import org.apache.commons.lang3.StringUtils;
 
 import com.altres.rs.dao.ReservationDao;
@@ -146,6 +147,11 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
 
       try {
         Resource resource = new ResourceDao().getSingleResource(getResourceId());
+        User user = new UserDao().getSingleUser(String.valueOf(getUserId()));
+
+        if(isAllowedToSaveForProbation(user, resource)) {
+          errors.add("Only permanent employees are allowed to use the " + resource.getResourceName() + ".");
+        }
 
         if (isReservationUnderLimit(startDateTime, endDateTime, resource)) {
           errors.add(errorMessage(resource));
@@ -284,5 +290,9 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
       return isBooked;
     }).count();
     return resource.getMaxUserBooking() != null && count >= resource.getMaxUserBooking();
+  }
+
+  private boolean isAllowedToSaveForProbation(User userDao, Resource resource) throws SQLException, IOException {
+    return !userDao.isPermanentEmployee() && !resource.isPermanentEmployee();
   }
 }

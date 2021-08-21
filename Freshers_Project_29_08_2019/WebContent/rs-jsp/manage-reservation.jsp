@@ -75,7 +75,7 @@ executeEvent(window, 'load', function(){
                                 &times;</span>
                         </div> 
                         <%@include file="display-error.jsp"%> 
-                        <input type="hidden" name="edit_reservation" value="edit_reservation"> 
+                        <input type="hidden" name="edit_reservation" value="edit_reservation">
                         <input type="hidden" name="reservation_id" value="${reservation.reservationId}" /> 
                         <input type="hidden" value="${reservation.userId}" name="user_id" />
                     </td>

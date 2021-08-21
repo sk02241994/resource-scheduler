@@ -11,17 +11,22 @@ function displayNotice(){
 
 function showNotice(message) {
 	var errorDiv = document.createElement('div');
-	var errorAnchor = document.createElement('a');
+	var errorButton = document.createElement('button');
+	var errorSpan = document.createElement('span');
 	
 	errorDiv.innerHTML = message.replace(/\n/g,"<br />");
-	errorDiv.className = 'error-notice';
+	errorDiv.className = 'alert alert-danger alert-dismissible fade show text-center';
 	
-	errorAnchor.innerHTML = '&times;';
-	errorAnchor.setAttribute('onclick', 'this.parentNode.style.display = "none"');
-	errorAnchor.setAttribute('href', '#');
-	errorAnchor.className = 'close-error';
+	errorButton.setAttribute('type', 'button');
+	errorButton.setAttribute('data-dismiss', 'alert');
+	errorButton.setAttribute('aria-label', 'Close');
+	errorButton.className = 'close';
 	
-	errorDiv.appendChild(errorAnchor);
+	errorSpan.setAttribute('aria-hidden', 'true');
+	errorSpan.innerHTML = '&times;';
+
+	errorButton.appendChild(errorSpan);
+	errorDiv.appendChild(errorButton);
 	
 	var div = document.getElementById('errors');
 	div.appendChild(errorDiv);
@@ -39,7 +44,7 @@ function clearNotice(){
 
 function displayNoticeOnModal(){
 	if(errorList.length > 0) {
-		document.getElementById('edit-field').style.display = 'block';
+	    $('#edit-field').modal('show');
 		displayNotice();
 	}
 }

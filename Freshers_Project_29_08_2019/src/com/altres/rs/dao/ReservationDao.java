@@ -25,7 +25,8 @@ import com.altres.rs.model.ReservationDetails;
  */
 public class ReservationDao {
 
-  private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm";
+  private static final String DATE_TIME_PATTERN = "MM/dd/yyyy HH:mm";
+  private static final String DB_TIME_FORMAT = "yyyy-MM-dd HH:mm";
 
   private static final String COL_RS_RESERVATION_ID = "rs_reservation_id";
   private static final String COL_RS_USER_ID = "rs_user_id";
@@ -52,7 +53,7 @@ public class ReservationDao {
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
-      DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+      DateFormat inputFormat = new SimpleDateFormat(DB_TIME_FORMAT);
       Date dateTime = null;
       DateFormat date = new SimpleDateFormat("MM/dd/yyyy");
       DateFormat time = new SimpleDateFormat("HH:mm");
@@ -129,7 +130,7 @@ public class ReservationDao {
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
-      DateFormat dateTimeFormatter = new SimpleDateFormat(DATE_TIME_PATTERN);
+      DateFormat dateTimeFormatter = new SimpleDateFormat(DB_TIME_FORMAT);
       DateFormat dateTimeParser = new SimpleDateFormat(DATE_TIME_PATTERN); // changes made here
       Date date = null;
 
@@ -231,7 +232,7 @@ public class ReservationDao {
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
-      DateFormat dateTimeFormatter = new SimpleDateFormat(DATE_TIME_PATTERN);
+      DateFormat dateTimeFormatter = new SimpleDateFormat(DB_TIME_FORMAT);
       DateFormat dateTimeParser = new SimpleDateFormat(DATE_TIME_PATTERN);
       Date date = null;
 
@@ -279,7 +280,6 @@ public class ReservationDao {
     Connection connection = null;
     PreparedStatement statement = null;
     ResultSet resultSet = null;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
     List<Reservation> reservationList = new ArrayList<>();
     DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
 
@@ -348,9 +348,9 @@ public class ReservationDao {
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
-      DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+      DateFormat inputFormat = new SimpleDateFormat(DB_TIME_FORMAT);
       Date dateTime = null;
-      DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+      DateFormat date = new SimpleDateFormat("MM/dd/yyyy");
       DateFormat time = new SimpleDateFormat("HH:mm");
 
       String queryForReservation = "SELECT rs_reservation.rs_reservation_id, " + "rs_reservation.rs_user_id, "
@@ -418,7 +418,7 @@ public class ReservationDao {
 
     try {
       connection = SqlConnection.getInstance().initalizeConnection();
-      DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+      DateFormat inputFormat = new SimpleDateFormat(DB_TIME_FORMAT);
       Date dateTime = null;
       DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
       DateFormat time = new SimpleDateFormat("HH:mm");
@@ -478,7 +478,6 @@ public class ReservationDao {
   public List<ReservationDetails> isUsedInDay(int resourceId, int userId)
       throws SQLException, IOException, ParseException {
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
     Connection connection = null;
     PreparedStatement statement = null;
     ResultSet resultSet = null;

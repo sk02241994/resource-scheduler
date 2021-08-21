@@ -20,6 +20,7 @@ import com.altres.rs.dao.ResourceDao;
 import com.altres.rs.model.Resource;
 import com.altres.utils.ResourceSchedulerServlet;
 import com.altres.utils.exception.ValidationServletException;
+import com.google.gson.Gson;
 
 /**
  * Servlet for adding, updating and deleting resources.
@@ -64,8 +65,10 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
 
       switch (StringUtils.defaultIfBlank(formAction, "")) {
       case "edit":
-        setAttribute(FORM, resourceDao.getSingleResource(NumberUtils.toInt(getParameter(parameter))));
-        break;
+        Gson gson = new Gson();
+        response.setContentType("application/json");
+        response.getWriter().write(gson.toJson(resourceDao.getSingleResource(NumberUtils.toInt(getParameter(parameter)))));
+        return;
 
       case "delete":
         new Resource().validateDelete(NumberUtils.toInt(getParameter(parameter)));
@@ -111,18 +114,21 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
 
       resource.sanitizeAndValidate();
 
-      Integer timeInMinutes = (NumberUtils.toInt(resource.getTimeLimitHours()) * 60)
-          + NumberUtils.toInt(resource.getTimeLimitMinutes());
-      resource.setTimeLimit(timeInMinutes == 0 ? null : timeInMinutes);
-
       resourceDao.upsert(resource);
       addSuccessNotice("Resource has been saved successfully");
-      setAttribute(RESOURCES, resourceDao.getResource());
     } catch (ValidationServletException e) {
       addModalErrorNotice(e.getError());
-      setAttribute(FORM, resource);
+      Gson gson = new Gson();
+      setAttribute(FORM, gson.toJson(resource));
     } catch (SQLException exception) {
       LOGGER.log(Level.SEVERE, "Exception while posting all the details of resources", exception);
+      throw new ServletException("Error while trying to post details");
+    }
+
+    try {
+      setAttribute(RESOURCES, resourceDao.getResource());
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, "Exception while posting all the details of resources", e);
       throw new ServletException("Error while trying to post details");
     }
 
@@ -147,6 +153,8 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
             ? NumberUtils.toInt(getParameter("max_user_booking"))
             : null;    
     boolean isAllowEmpOnProbation = "on".equals(getParameter("isAllowEmpOnProbation"));
+    Integer timeInMinutes = (NumberUtils.toInt(timeLimitHours) * 60)
+        + NumberUtils.toInt(timeLimitMinutes);
 
     resource.setRsResourceId(resourceId);
     resource.setResourceName(resourcename);
@@ -157,6 +165,7 @@ public class ResourceServlet extends ResourceSchedulerServlet<Resource> {
     resource.setIsAllowedMultiple(isAllowedMultiple);
     resource.setMaxUserBooking(maxUserBooking);
     resource.setIsPermanentEmployee(isAllowEmpOnProbation);
+    resource.setTimeLimit(timeInMinutes == 0 ? null : timeInMinutes);
 
     return resource;
   }

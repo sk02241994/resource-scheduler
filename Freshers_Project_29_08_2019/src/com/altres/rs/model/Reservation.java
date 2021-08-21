@@ -132,7 +132,7 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
     errors.addAll(validateDateTime());
 
     if (errors.isEmpty()) {
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
       LocalDateTime startDateTime = LocalDateTime.parse(getStartDate() + " " + getStartTime(), formatter);
       LocalDateTime endDateTime = LocalDateTime.parse(getEndDate() + " " + getEndTime(), formatter);
 
@@ -150,7 +150,7 @@ public class Reservation implements PojoSavable<Void>, PojoDeletable<Integer> {
         User user = new UserDao().getSingleUser(String.valueOf(getUserId()));
 
         if(isAllowedToSaveForProbation(user, resource)) {
-          errors.add("Only permanent employees are allowed to use the " + resource.getResourceName() + ".");
+          errors.add("Employees in probation cannot book " + resource.getResourceName() + ".");
         }
 
         if (isReservationUnderLimit(startDateTime, endDateTime, resource)) {

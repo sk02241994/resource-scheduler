@@ -1,8 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.io.* "%>
-<%@ page import="java.util.List"%>
-<%@ page import="java.util.ArrayList"%>
-<%@ page import="com.altres.rs.model.Resource"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
@@ -91,9 +87,11 @@ executeEvent(window, 'load', function(){
                     <tr>
                         <td><label>Time Limit</label></td>
                         <td><fmt:parseNumber var="hours" integerOnly="true" type="number"
-                                value="${form.timeLimit div 60}" /> <input type="text" name="timeLimitHours"
+                                value="${form.timeLimit div 60}" /> 
+                                <input type="text" name="timeLimitHours"
                             placeholder="Hours" value="${hours eq 0 ? '' : hours}" onkeyup="this.value=onlyNumber(this)" />
-                            <c:set value="${form.timeLimit mod 60}" var="minutes" /> <input type="text"
+                            <c:set value="${form.timeLimit mod 60}" var="minutes" /> 
+                            <input type="text"
                             name="timeLimitMinutes" placeholder="Minutes" value="${minutes eq 0 ? '' : minutes}"
                             onkeyup="this.value=onlyNumber(this)" /></td>
                     </tr>

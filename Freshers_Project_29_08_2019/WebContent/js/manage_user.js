@@ -5,7 +5,34 @@
  * @param email_address
  */
 function getUser(userId) {
-	goToPage('UserServlet?form_action=edit&userId=' + userId);
+    clearNotice();
+    enableButton();
+    $.ajax({
+        url: 'UserServlet',
+        type: 'GET',
+        dataType: 'json',
+        data: {form_action: 'edit', userId: userId},
+        contentType: 'application/json',
+        success: function(data){
+            displayData(data);
+        }
+    });
+
+
+}
+
+function displayData(data){
+    $('#edit-form #userId').val(data.rsUserId);
+    $('#edit-form #name').val(data.name);
+    $('#edit-form #email').val(data.email_address);
+    $('#edit-form #isenabled').prop('checked', data.isEnabled);
+    $('#edit-form #isadmin').prop('checked', data.isAdmin);
+    $('#edit-form #isPermanentEmployee').prop('checked', data.isPermanentEmployee);
+    $('input[name="gender"]').each(function(){
+        if($(this).val() == data.gender){
+            $(this).prop('checked', 'checked');
+        }
+    });
 }
 
 /**
@@ -36,6 +63,7 @@ function isNotValidName(name) {
  */
 function validateForm(form) {
 
+    var form = document.getElementById('edit-form');
 	clearNotice();
 
 	if (form.name.value.trim().length == 0) {
@@ -60,5 +88,6 @@ function validateForm(form) {
 	}
 
 	disableButton();
+	form.submit();
 	return true;
 }

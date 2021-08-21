@@ -4,7 +4,7 @@
 
 // Method for toggling the display of details of reservation.
 function show(id){
-		
+		debugger;
 	if(id[1].style.display === "block"){
 		id[1].style.display = "none";
 	}else{
@@ -66,21 +66,29 @@ function displayData(date, month, year) {
 							if (userId == category[key][i].userId || isAdmin) {
 								
 								document.getElementById(date).innerHTML = dataExisting + 
-								"<img id='editico' src='/ResourceScheduler/js/delete.png'" +
-								" onclick='getIdForDelete("+category[key][i].reservationId+")'>"+
-								"<img id='editico' src='/ResourceScheduler/js/icon.png'" +
-								"onclick='getData("+category[key][i].reservationId+")'>" +
-								"<img id='editico' src='/ResourceScheduler/js/information.png'" +
-								"onclick='show(tooltip"+reservationId+")'>" +
+								"<i id='delico' class='bi bi-trash dis-icon' " +
+								" onclick='getIdForDelete("+category[key][i].reservationId+")'></i>"+
+								"<i id='editico' class='bi bi-pencil dis-icon' " +
+								"onclick='getData("+category[key][i].reservationId+")'></i>" +
 								
-								"<div id='tooltip"+reservationId+"' class='tooltip'>Start: "+category[key][i].startDate+
+								"<i class='bi bi-exclamation-circle-fill dis-icon' data-toggle='tooltip' data-placement='right'" +
+								" title='Start Date: "+category[key][i].startDate + " " + category[key][i].startTime+"" +
+										"\nEnd Date: " + category[key][i].endDate + " " + category[key][i].endTime +
+										"\nUser Name: " + category[key][i].userName +
+										"\nResource Name: " + category[key][i].resourceName +
+										"'></i>"
+								
+								/*"<i id='editico' class='bi bi-exclamation-circle-fill'" +
+								"data-toggle='tooltip'"+
+								//"onclick='show(tooltip"+reservationId+")'></i>" +
+								"title='"+
+								"<div id=\'tooltip"+reservationId+"\' class=\'tooltip\'>Start: "+category[key][i].startDate+
 								" "+category[key][i].startTime+
 								"<br/>End: "+category[key][i].endDate+" "+category[key][i].endTime+
 								"<br/>User Name: "+category[key][i].userName+
 								"<br/>Resource Name: "+category[key][i].resourceName+
-								"</div>" +
-								
-								"</span><br/>";
+								"</div>" + "</span><br/>"
+								"'</i>";*/
 								
 								document.getElementById(reservationId).style.background = '#8DD6C2';
 							} else {

@@ -5,8 +5,37 @@
  * @param resource_id
  */
 function getResource(resourceId) {
-	goToPage('ResourceServlet?form_action=edit&resourceId=' + resourceId);
+	clearNotice();
+    enableButton();
+    $.ajax({
+        url: 'ResourceServlet',
+        type: 'GET',
+        dataType: 'json',
+        data: {form_action: 'edit', resourceId: resourceId},
+        contentType: 'application/json',
+        success: function(data){
+            displayData(data);
+        }
+    });
 
+}
+
+function displayData(data){
+    $('#edit-form #resourceId').val(data.rsResourceId);
+    $('#edit-form #resourceName').val(data.resourceName);
+    $('#edit-form #description').val(data.resourceDescription);
+
+    var hours = (data.timeLimit / 60);
+    var rHours = Math.floor(hours);
+    $('#edit-form #timeLimitHours').val(isNaN(rHours) || rHours == 0 ? '' : rHours);
+    var minutes = (hours - rHours) * 60;
+    var rminutes = Math.round(minutes);
+    $('#edit-form #timeLimitMinutes').val(isNaN(rminutes) || rminutes == 0 ? '' : rminutes);
+
+    $('#edit-form #maxUserBooking').val(data.maxUserBooking);
+    $('#edit-form #isenabled').prop('checked', data.isEnabled);
+    $('#edit-form #isAllowedMultiple').prop('checked', data.isAllowedMultiple);
+    $('#edit-form #isAllowEmpOnProbation').prop('checked', data.isPermanentEmployee);
 }
 
 /**
@@ -27,17 +56,21 @@ function deleteResource(resourceId) {
  * @param formObj
  * @returns boolean
  */
-function validateResource(formObj) {
+function validateResource() {
 
-	if (formObj.resource_name.value.trim().length == 0) {
+    var formObj = document.getElementById('edit-form');
+    clearNotice();
+
+	/*if (formObj.resource_name.value.trim().length == 0) {
 		addError('Please Enter the resource name.')
-	}
+	}*/
 	if (hasErrorNotice()) {
 		displayNotice();
 		return false;
 	}
 	
 	disableButton();
+	formObj.submit();
 	return true;
 }
 

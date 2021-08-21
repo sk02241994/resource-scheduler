@@ -6,8 +6,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>User</title>
-<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
-<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/manage-user.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
+<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/manage-user.css" /> -->
 <script type="text/javascript" src="/ResourceScheduler/js/manage_user.js"></script>
 <script type="text/javascript" src="/ResourceScheduler/js/display-error.js"></script>
 <script type="text/javascript" src="/ResourceScheduler/js/common.js"></script>
@@ -21,9 +25,10 @@ executeEvent(window, 'load', function(){
 });
 </script>
 <body>
-    <div class="navbar">
+    <div class="container">
+    <!-- <div class="navbar"> -->
         <%@include file="nav-bar.jsp"%>
-    </div>
+    <!-- </div> -->
     <button onclick="displayModalWindow(true, 0);" class="add-button">Add</button>
     <%@include file="notification.jsp"%>
     <div>
@@ -102,6 +107,7 @@ executeEvent(window, 'load', function(){
                 </table>
             </form>
         </div>
+    </div>
     </div>
 </body>
 </html>

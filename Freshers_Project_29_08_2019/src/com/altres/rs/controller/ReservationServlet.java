@@ -83,8 +83,10 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
     try {
 
       if (StringUtils.equals("edit", formAction) && StringUtils.isNotBlank(getParameter(RESERVATION_ID))) {
-        setAttribute(RESREVATION,
-            reservationDao.getSingleReservation(NumberUtils.toInt(getParameter(RESERVATION_ID)), userId, isAdmin));
+        Gson gson = new Gson();
+        response.setContentType("application/json");
+        response.getWriter().write(gson.toJson(reservationDao.getSingleReservation(NumberUtils.toInt(getParameter(RESERVATION_ID)), userId, isAdmin)));
+        return;
       }
 
       if (StringUtils.equals("delete", formAction) && StringUtils.isNotBlank(getParameter(RESERVATION_ID))) {
@@ -208,7 +210,8 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
       }
     } catch (ValidationServletException e) {
       addModalErrorNotice(e.getError());
-      setAttribute(RESREVATION, reservation);
+      Gson gson = new Gson();
+      setAttribute(RESREVATION, gson.toJson(reservation));
     }
 
     if(isMailSent) {

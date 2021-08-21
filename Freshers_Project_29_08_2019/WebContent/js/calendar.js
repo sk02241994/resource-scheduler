@@ -108,13 +108,14 @@ function showCalendar(month, year){
 				var cellText = document.createTextNode(date);
 				var cellDiv = document.createElement("div");
 				
-				var addNewEntry = document.createElement("img");
-				addNewEntry.setAttribute("src", "/ResourceScheduler/js/addnew.png");
-				addNewEntry.setAttribute("id", "editicon");
+				var addNewEntry = document.createElement("i");
+				addNewEntry.setAttribute("class", "bi bi-calendar-plus-fill addico");
+				addNewEntry.setAttribute("id", "addico");
 				addNewEntry.setAttribute("onclick", "addNewEntry("+date+","+month+","+year+")");
 				
 				cellDiv.setAttribute("id", date);
 				cell.setAttribute("onclick", "displayAllDayData("+date+","+ month+","+ year+")");
+				cell.className = "w-15";
 				cell.appendChild(cellText);
 				
 				cell.appendChild(addNewEntry);
@@ -137,18 +138,22 @@ function showCalendar(month, year){
 // clicked user will be shown the add form
 // else user will be shown current dates all the registrations.
 function displayAllDayData(date, month, year){
-	
 	if(document.getElementById('edit-field').style.display === 'block'){
 		document.getElementById('display-all-day-data').style.display='none';
 	}else{
 		if(document.getElementById(date).innerHTML != ""){
-			document.getElementById('display-all-day-data').style.display='block';
+		    $('#display-all-day-data').modal('show');
+		    document.getElementById('displayRecordBody').innerHTML = '';
 		}
 	}
-	document.getElementById('data').innerHTML = "<div class='header'><h2>"+date+" "+monthAndYear.innerHTML+"</h2></div>";
-	document.getElementById('data').innerHTML += "<div class='content'>"+document.getElementById(date).innerHTML+"</div>";
-	document.getElementById('data').innerHTML += "<div class='footer'><button onclick='closePopUp()'>Cancel</button></div>"
-	
+	document.getElementById('displayRecordsTitle').innerHTML = "<div class='header'><h2>"+date+" "+monthAndYear.innerHTML+"</h2></div>";
+	document.getElementById('displayRecordBody').innerHTML += "<div class='content'>"+document.getElementById(date).innerHTML+"</div>";
+	 $('#displayRecordBody').html(function(index, content){
+	     $(this).each(function(index){
+	         console.log($(this)[index]);
+	     })
+	     
+	 });
 }
 
 // Used to close the modal for display-all-day-data Id.

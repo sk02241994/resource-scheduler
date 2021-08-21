@@ -2,11 +2,10 @@
  * 
  */
 
-var startDate;
-var startTime;
-var endDate;
-var endTime;
-
+var startDateToBeDisplayed;
+var startTimeToBeDisplayed;
+var endDateToBeDisplayed;
+var endTimeToBeDisplayed;
 /**
  * Method for enabling and disabling the time input boxes if all day event is
  * selected.
@@ -15,16 +14,12 @@ var endTime;
  */
 function enableDisableTextBox(checkAllDay){
 	if (checkAllDay.checked == true){
-		document.getElementById("time-start").value = "09:00";
-		document.getElementById("time-start").readOnly = true;
-		document.getElementById("time-end").value = "17:00";
-		document.getElementById("time-end").readOnly = true;
+	    $('#startTime').val('09:00');
+	    $('#endTime').val('17:00');
 	}
 	else{
-		document.getElementById("time-start").readOnly = false;
-		document.getElementById("time-start").value = "";
-		document.getElementById("time-end").readOnly = false;
-		document.getElementById("time-end").value = "";
+	    $('#startTime').val('');
+        $('#endTime').val('');
 	}
 }
 
@@ -33,10 +28,53 @@ function enableDisableTextBox(checkAllDay){
  * 
  * @param reservation_id
  */
-function getId(reservation_id){
-	var id = reservation_id;
-	window.location='ReservationServlet?form_action=edit&reservation_id='+id;
+function getId(reservationId){
+	clearNotice();
+    enableButton();
+    $.ajax({
+        url: 'ReservationServlet',
+        type: 'GET',
+        dataType: 'json',
+        data: {form_action: 'edit', reservation_id: reservationId},
+        contentType: 'application/json',
+        success: function(data){
+            displayData(data);
+        }
+    });
 	
+}
+
+function displayData(data) {
+    if(data){
+        $('#edit-form #reservationId').val(data.reservationId);
+        $('#edit-form #userId').val(data.userId);
+        $('#edit-form #resourceName option[value='+ data.resourceId +']').attr("selected", "selected");
+        $('#edit-form #startDate').val(data.startDate);
+        $('#startDate').datepicker("setDate", data.startDate);
+        $('#edit-form #startTime').val(data.startTime);
+        $('#edit-form #endDate').val(data.endDate);
+        $('#endDate').datepicker("setDate", data.endDate);
+        $('#edit-form #endTime').val(data.endTime);
+    }
+}
+
+/**
+ * Method to format date in form of mm/dd/yyyy
+ * 
+ * @param inputDate
+ * @returns
+ */
+function changeDateFormat(inputDate){   
+    var splitDate = inputDate.split('-');
+    if(splitDate.count == 0){
+        return null;
+    }
+
+    var year = splitDate[0];
+    var month = splitDate[1];
+    var day = splitDate[2]; 
+
+    return month + '/' + day + '/' + year;
 }
 
 /**
@@ -56,7 +94,7 @@ function isValidTime(time){
 
 // Method to check if the date is entered in correct format.
 function isValidDate(date){
-    return !/[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/.test(date);
+    return !/^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/.test(date);
 }
 
 /**
@@ -66,14 +104,15 @@ function isValidDate(date){
  * @param formObj
  * @returns boolean
  */
-function validateEditForm(formObj) {
+function validateEditForm() {
+    var formObj = document.getElementById('edit-form');
     clearNotice();
 
     var resourceName = formObj.resource_name.value
-    startDate = formObj.start_date.value;
-    startTime = formObj.start_time.value;
-    endDate = formObj.end_date.value;
-    endTime = formObj.end_time.value;
+    var startDate = formObj.start_date.value;
+    var startTime = formObj.start_time.value;
+    var endDate = formObj.end_date.value;
+    var endTime = formObj.end_time.value;
 
     if(resourceName.length == 0) {
         addError('Please select a resource.');
@@ -121,6 +160,10 @@ function validateEditForm(formObj) {
         return false;
     }
     disableButton();
+    formObj.submit();
     return true;
 }
 
+function setDate(){
+    $('.datepicker').datepicker("setDate", new Date());
+}

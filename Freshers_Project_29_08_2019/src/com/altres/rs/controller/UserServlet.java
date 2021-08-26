@@ -108,7 +108,8 @@ public class UserServlet extends ResourceSchedulerServlet<User> {
     Integer userId = NumberUtils.isCreatable(getParameter(USER_ID))
         ? NumberUtils.toInt(getParameter(USER_ID))
         : null;
-    Gender gender = Gender.valueOf(getParameter("gender"));
+    String genderSelected = getParameter("gender");
+    Gender gender = StringUtils.isNotBlank(genderSelected) ? Gender.valueOf(getParameter("gender")) : null;
     boolean isPermanetEmployee = "on".equals(getParameter("isPermanentEmployee"));
 
     User user = new User();

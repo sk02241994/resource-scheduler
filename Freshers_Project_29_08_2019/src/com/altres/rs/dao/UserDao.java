@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.altres.connection.util.SqlConnection;
 import com.altres.rs.model.User;
 import com.altres.utils.Gender;
@@ -57,7 +60,7 @@ public class UserDao {
       statement.setString(5, user.getName());
       statement.setString(6, user.getName());
       statement.setBoolean(7, user.isAdmin());
-      statement.setString(8, user.getGender().toString());
+      statement.setString(8, user.getGender() == null ? null : user.getGender().toString());
       statement.setBoolean(9, user.isPermanentEmployee());
 
       statement.executeUpdate();
@@ -109,7 +112,10 @@ public class UserDao {
         user.setEmail_address(resultSet.getString(COL_EMAIL_ADDRESS));
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
-        user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        String gender = resultSet.getString(COL_GENDER);
+        if(StringUtils.isNotBlank(gender)) {
+          user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        }
         user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
         userlist.add(user);
       }
@@ -158,7 +164,10 @@ public class UserDao {
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
         user.setPassword(resultSet.getString(COL_PASSWORD));
-        user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        String gender = resultSet.getString(COL_GENDER);
+        if(StringUtils.isNotBlank(gender)) {
+          user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        }
         user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
       }
     } finally {
@@ -205,7 +214,7 @@ public class UserDao {
       statement.setBoolean(3, user.isEnabled());
       statement.setString(4, user.getName());
       statement.setBoolean(5, user.isAdmin());
-      statement.setString(6, user.getGender().toString());
+      statement.setString(6, user.getGender() == null ? null : user.getGender().toString());
       statement.setBoolean(7, user.isPermanentEmployee());
       statement.setObject(8, user.getRsUserId());
 
@@ -272,7 +281,10 @@ public class UserDao {
         user.setEnabled(resultSet.getBoolean(COL_IS_ACTIVE));
         user.setIsAdmin(resultSet.getBoolean(COL_IS_ADMIN));
         user.setPassword(resultSet.getString(COL_PASSWORD));
-        user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        String gender = resultSet.getString(COL_GENDER);
+        if(StringUtils.isNotBlank(gender)) {
+          user.setGender(Gender.valueOf(resultSet.getString(COL_GENDER)));
+        }
         user.setIsPermanentEmployee(resultSet.getBoolean(COL_IS_PERMANENT_EMPLOYEE));
       }
     } finally {

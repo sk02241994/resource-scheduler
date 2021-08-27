@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -15,12 +14,13 @@ import com.altres.connection.util.ValidateUser;
 import com.altres.rs.constants.Constants;
 import com.altres.rs.dao.LoginDao;
 import com.altres.rs.model.User;
+import com.altres.utils.ResourceSchedulerServlet;
 
 /**
  * Class for handling all the login verifications and passing the user or administrator to their respective pages
  * also validating the user if valid and active or inactive user.
  */
-public class LoginServlet extends HttpServlet {
+public class LoginServlet extends ResourceSchedulerServlet<Void> {
   public static final String LOGGEDIN_USER = "loggedInUser";
 
   private static final long serialVersionUID = 1L;
@@ -62,6 +62,9 @@ public class LoginServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+    setRequestResponse(request, response);
+    clearNotices();
+
     LoginDao logindao = new LoginDao();
     String emailAddress = request.getParameter("uemail_address");
     String password = request.getParameter("user_password");
@@ -100,7 +103,7 @@ public class LoginServlet extends HttpServlet {
     
     try {
       if (!validateUser.isValidLogin(emailAddress, password)) {
-        request.setAttribute("errorMessage", "Invalid email or password");
+        addModalErrorNotice("Invalid email or password");
         hasError = true;
       } else if (validateUser.isAdmin()) {
         redirectUrl = "/UserServlet";
@@ -112,20 +115,27 @@ public class LoginServlet extends HttpServlet {
           redirectUrl = "/ReservationServlet";
         }
       } else {
-        request.setAttribute("disableError", "Account disabled, please contact administrator.");
+        addModalErrorNotice("Account disabled, please contact administrator.");
         hasError = true;
       }
-      
+
       if(!hasError) {
         HttpSession session = request.getSession();
         session.setAttribute(LOGGEDIN_USER, user);
         response.sendRedirect(contextPath + redirectUrl);
       } else {
-        request.getRequestDispatcher(Constants.LOGIN_JSP).forward(request, response);
+        displayNotice();
+        forward(Constants.LOGIN_JSP);
       }
     } catch (IOException | ServletException exception) {
       LOGGER.log(Level.SEVERE, "Exception while logging in as a valid user", exception);
       throw new ServletException("There was an error while logging in");
     }
+  }
+
+  @Override
+  public Void getForm(HttpServletRequest request) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

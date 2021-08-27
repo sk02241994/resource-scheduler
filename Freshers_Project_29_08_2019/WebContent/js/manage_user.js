@@ -22,17 +22,19 @@ function getUser(userId) {
 }
 
 function displayData(data){
-    $('#edit-form #userId').val(data.rsUserId);
-    $('#edit-form #name').val(data.name);
-    $('#edit-form #email').val(data.email_address);
-    $('#edit-form #isenabled').prop('checked', data.isEnabled);
-    $('#edit-form #isadmin').prop('checked', data.isAdmin);
-    $('#edit-form #isPermanentEmployee').prop('checked', data.isPermanentEmployee);
-    $('input[name="gender"]').each(function(){
-        if($(this).val() == data.gender){
-            $(this).prop('checked', 'checked');
-        }
-    });
+    if(data){
+        $('#edit-form #userId').val(data.rsUserId);
+        $('#edit-form #name').val(data.name);
+        $('#edit-form #email').val(data.email_address);
+        $('#edit-form #isenabled').prop('checked', data.isEnabled);
+        $('#edit-form #isadmin').prop('checked', data.isAdmin);
+        $('#edit-form #isPermanentEmployee').prop('checked', data.isPermanentEmployee);
+        $('input[name="gender"]').each(function(){
+            if($(this).val() == data.gender){
+                $(this).prop('checked', 'checked');
+            }
+        });
+    }
 }
 
 /**

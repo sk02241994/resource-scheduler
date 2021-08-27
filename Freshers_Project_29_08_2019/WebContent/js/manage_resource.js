@@ -21,21 +21,23 @@ function getResource(resourceId) {
 }
 
 function displayData(data){
-    $('#edit-form #resourceId').val(data.rsResourceId);
-    $('#edit-form #resourceName').val(data.resourceName);
-    $('#edit-form #description').val(data.resourceDescription);
+    if(data){
+        $('#edit-form #resourceId').val(data.rsResourceId);
+        $('#edit-form #resourceName').val(data.resourceName);
+        $('#edit-form #description').val(data.resourceDescription);
 
-    var hours = (data.timeLimit / 60);
-    var rHours = Math.floor(hours);
-    $('#edit-form #timeLimitHours').val(isNaN(rHours) || rHours == 0 ? '' : rHours);
-    var minutes = (hours - rHours) * 60;
-    var rminutes = Math.round(minutes);
-    $('#edit-form #timeLimitMinutes').val(isNaN(rminutes) || rminutes == 0 ? '' : rminutes);
+        var hours = (data.timeLimit / 60);
+        var rHours = Math.floor(hours);
+        $('#edit-form #timeLimitHours').val(isNaN(rHours) || rHours == 0 ? '' : rHours);
+        var minutes = (hours - rHours) * 60;
+        var rminutes = Math.round(minutes);
+        $('#edit-form #timeLimitMinutes').val(isNaN(rminutes) || rminutes == 0 ? '' : rminutes);
 
-    $('#edit-form #maxUserBooking').val(data.maxUserBooking);
-    $('#edit-form #isenabled').prop('checked', data.isEnabled);
-    $('#edit-form #isAllowedMultiple').prop('checked', data.isAllowedMultiple);
-    $('#edit-form #isAllowEmpOnProbation').prop('checked', data.isPermanentEmployee);
+        $('#edit-form #maxUserBooking').val(data.maxUserBooking);
+        $('#edit-form #isenabled').prop('checked', data.isEnabled);
+        $('#edit-form #isAllowedMultiple').prop('checked', data.isAllowedMultiple);
+        $('#edit-form #isAllowEmpOnProbation').prop('checked', data.isPermanentEmployee);
+    }
 }
 
 /**

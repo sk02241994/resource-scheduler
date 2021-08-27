@@ -5,8 +5,10 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -139,8 +141,10 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
    */
   private String convertListToJson(List<ReservationDetails> reservationListing) {
 
+    Map<String, List<ReservationDetails>> details = reservationListing.stream()
+        .collect(Collectors.groupingBy(ReservationDetails::getStartDate));
     Gson gson = new Gson();
-    return gson.toJson(reservationListing);
+    return gson.toJson(details);
   }
 
   /*
@@ -159,6 +163,7 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
     setRequestResponse(request, response);
     clearNotices();
 
+    String editReservationField = getParameter("edit_reservation");
     ReservationDao reservationDao = new ReservationDao();
     ResourceDao resourceDao = new ResourceDao();
 
@@ -171,6 +176,10 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
       LOGGER.log(Level.SEVERE, "Exception while booking a resource and time", exception);
       throw new ServletException("There was an error while trying to save your credentials");
     }
+    
+    displayNotice();
+    forward(StringUtils.equals("edit_calendar_reservation", editReservationField) ? Constants.CALENDAR
+        : Constants.MANAGE_RESERVATION_JSP);
   }
 
   /**
@@ -192,7 +201,6 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
       throws SQLException, IOException, ParseException, ServletException {
 
     ReservationDetails reservation = getForm(request);
-    String editReservationField = getParameter("edit_reservation");
     User user = (User) getSessionAttribute(LoginServlet.LOGGEDIN_USER);
 
     boolean isMailSent = false;
@@ -225,9 +233,6 @@ public class ReservationServlet extends ResourceSchedulerServlet<ReservationDeta
     response.setContentType(APPLICATION_JSON);
     setAttribute(SCHEDULE, convertListToJson(reservationDetails));
 
-    displayNotice();
-    forward(StringUtils.equals("edit_calendar_reservation", editReservationField) ? Constants.CALENDAR
-        : Constants.MANAGE_RESERVATION_JSP);
   }
 
   @Override

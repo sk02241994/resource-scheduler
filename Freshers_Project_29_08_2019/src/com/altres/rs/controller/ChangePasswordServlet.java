@@ -30,7 +30,9 @@ public class ChangePasswordServlet extends ResourceSchedulerServlet<User> {
   
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    request.getRequestDispatcher(Constants.CHANGE_PASSWORD_JSP).forward(request, response);
+    setRequestResponse(request, response);
+    clearNotices();
+    forward(Constants.CHANGE_PASSWORD_JSP);
   }
   
   /*
@@ -63,12 +65,12 @@ public class ChangePasswordServlet extends ResourceSchedulerServlet<User> {
     String confirmPassword = getParameter("new_password");
 
     if (!StringUtils.equals(newpassword, confirmPassword)) {
-      addErrorNotice("Password does not match. Please try again");
+      addModalErrorNotice("Password does not match. Please try again");
       isValid = false;
     }
 
     if (!Pattern.matches("^(?=.*[0-9]+.*)(?=.*[a-zA-Z]+.*)[0-9a-zA-Z]{6,}$", newpassword)) {
-      addErrorNotice("Password must contain at least one letter, at least one number");
+      addModalErrorNotice("Password must contain at least one letter, at least one number");
       isValid = false;
     }
 

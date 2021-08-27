@@ -43,7 +43,7 @@ function clearNotice(){
 }
 
 function displayNoticeOnModal(){
-	if(errorList.length > 0) {
+	if(errorList && errorList.length > 0) {
 	    $('#edit-field').modal('show');
 		displayNotice();
 	}

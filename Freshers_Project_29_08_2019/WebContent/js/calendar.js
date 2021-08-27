@@ -107,19 +107,26 @@ function showCalendar(month, year){
 				var cell = document.createElement("td");
 				var cellText = document.createTextNode(date);
 				var cellDiv = document.createElement("div");
+
+				var cellDateRow = document.createElement('div');
+				cellDateRow.className = "row";
 				
 				var addNewEntry = document.createElement("i");
-				addNewEntry.setAttribute("class", "bi bi-calendar-plus-fill addico");
+				addNewEntry.setAttribute("class", "bi bi-calendar-plus-fill addico ml-1 mb-1");
+				addNewEntry.setAttribute("data-toggle", "modal");
+				addNewEntry.setAttribute("data-target", "#edit-field");
+				addNewEntry.setAttribute("onclick", "clearModal();setDate();");
 				addNewEntry.setAttribute("id", "addico");
-				addNewEntry.setAttribute("onclick", "addNewEntry("+date+","+month+","+year+")");
-				
+				addNewEntry.setAttribute("onclick", "clearModal();addNewEntry("+date+","+month+","+year+", event);");
 				cellDiv.setAttribute("id", date);
 				cell.setAttribute("onclick", "displayAllDayData("+date+","+ month+","+ year+")");
 				cell.className = "w-15";
-				cell.appendChild(cellText);
-				
-				cell.appendChild(addNewEntry);
-				
+
+				cellDateRow.appendChild(cellText);
+				cellDateRow.appendChild(addNewEntry);
+
+				cell.appendChild(cellDateRow);
+
 				cell.appendChild(cellDiv);
 				row.appendChild(cell);
 				tbl.appendChild(row);
@@ -138,22 +145,56 @@ function showCalendar(month, year){
 // clicked user will be shown the add form
 // else user will be shown current dates all the registrations.
 function displayAllDayData(date, month, year){
-	if(document.getElementById('edit-field').style.display === 'block'){
-		document.getElementById('display-all-day-data').style.display='none';
-	}else{
-		if(document.getElementById(date).innerHTML != ""){
-		    $('#display-all-day-data').modal('show');
-		    document.getElementById('displayRecordBody').innerHTML = '';
-		}
-	}
-	document.getElementById('displayRecordsTitle').innerHTML = "<div class='header'><h2>"+date+" "+monthAndYear.innerHTML+"</h2></div>";
-	document.getElementById('displayRecordBody').innerHTML += "<div class='content'>"+document.getElementById(date).innerHTML+"</div>";
-	 $('#displayRecordBody').html(function(index, content){
-	     $(this).each(function(index){
-	         console.log($(this)[index]);
-	     })
-	     
-	 });
+    if(document.getElementById('edit-field').style.display === 'block'){
+        document.getElementById('display-all-day-data').style.display='none';
+    }else{
+        if(document.getElementById(date).innerHTML != ""){
+            $('#display-all-day-data').modal('show');
+            document.getElementById('displayRecordBody').innerHTML = '';
+        }
+    }
+    document.getElementById('displayRecordsTitle').innerHTML = "<div class='header'><h2>"+date+" "+months[month]+" "+year+"</h2></div>";
+    $('#displayRecordBody').html(setDisplayContent(date, month, year));
+}
+
+function setDisplayContent(date, month, year){
+    var dispMonth = (1 + month);
+    var displayHtml = "<ul class='list-group list-group-flush'>";
+    var dayContent = schedule[(dispMonth > 9 ? dispMonth : '0' + dispMonth) + '/' + (date > 9 ? date : '0' + date) + '/' + year];
+    if(dayContent) {
+        dayContent.forEach(function(value, index){
+            displayHtml += "<li class='list-group-item'>";
+            displayHtml += "<div class='row'>";
+            displayHtml += "<div class='col-md-9'>"
+            displayHtml += value.startTime + ": " + value.resourceName + ": " + value.userName;
+            displayHtml += "</div>"
+            displayHtml += "<div class='col-md-3'>"
+            displayHtml += getIconsForActions(value);
+            displayHtml += "</div>"
+            displayHtml += "</div>"
+            displayHtml += "</li>";
+        });
+    }
+	displayHtml += "</ul>";
+	return displayHtml;
+}
+
+function getIconsForActions(value){
+    var iconActions = "";
+    if(userId == value.userId || isAdmin) {
+        iconActions += "<i class='bi bi-trash dis-icon' onclick='getIdForDelete(" + value.reservationId + ");'></i>";
+        iconActions += "<i class='bi bi-pencil dis-icon ml-2' data-toggle='modal' data-target='#edit-field' ";
+        iconActions += "onclick='getId(" + value.reservationId + ");'></i>";
+    }
+    iconActions += "<i class='bi bi-exclamation-circle-fill dis-icon ml-2' data-toggle='tooltip' data-placement='right'";
+    iconActions += "data-delay='{\"show\":\"10\", \"hide\":\"3000\"}'"
+    iconActions += "title='Start Date: " + value.startDate + " " + value.startTime + "\n";
+    iconActions += "End Date: " + value.endDate + " " + value.endTime + "\n";
+    iconActions += "User name: " + value.userName + "\n";
+    iconActions += "Resource Name: " + value.resourceName + "\n";
+    
+    iconActions += "'></i>";
+    return iconActions;
 }
 
 // Used to close the modal for display-all-day-data Id.
@@ -168,13 +209,14 @@ function isValidTime(time){
 
 // Method to check if the date is entered in correct format.
 function isValidDate(date){
-	return !/[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}/.test(date);
+	return !/^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/.test(date);
 }
 
 // Method to check if the date and time is in valid format and if all the
 // details are filled in properly else
 // will return false and render the user unable to submit the form.
-function validateEditForm(formObj) {
+function validateEditForm() {
+    var formObj = document.getElementById('edit-form');
     clearNotice();
 
     var resourceName = formObj.resource_name.value
@@ -183,6 +225,7 @@ function validateEditForm(formObj) {
 	endDate = formObj.end_date.value;
 	endTime = formObj.end_time.value;
 
+	formObj.edit_reservation.value = 'edit_calendar_reservation';
 	if(resourceName.length == 0) {
         addError('Please select a resource.');
     }
@@ -229,38 +272,31 @@ function validateEditForm(formObj) {
         return false;
     }
 	disableButton();
+	formObj.submit();
     return true;
 }
 
 // Method for all day event that will disable the time input boxed and set time
 // from 9 AM to 5 PM.
 function enableDisableTextBox(checkAllDay){
-	if (checkAllDay.checked == true){
-		document.getElementById("time-start").value = "09:00";
-		document.getElementById("time-start").readOnly = true;
-		document.getElementById("time-end").value = "17:00";
-		document.getElementById("time-end").readOnly = true;
-	}
-	else{
-		document.getElementById("time-start").readOnly = false;
-		document.getElementById("time-start").value = "";
-		document.getElementById("time-end").readOnly = false;
-		document.getElementById("time-end").value = "";
-	}
+    if (checkAllDay.checked == true){
+        $('#startTime').val('09:00');
+        $('#endTime').val('17:00');
+    }
+    else{
+        $('#startTime').val('');
+        $('#endTime').val('');
+    }
 }
 
 // Method to call for form to add new entry.
-function addNewEntry(date, month, year) {
+function addNewEntry(date, month, year, event) {
     clearNotice();
-	document.getElementById('edit-field').style.display='block';
-	var selectedDate = new Date(year+"-"+(month+1)+"-"+date);
-	document.getElementById('start_date').value = convert(selectedDate);
-	document.getElementById('time-start').value = '';
-	document.getElementById('end_date').value = convert(selectedDate);
-	document.getElementById('time-end').value = '';
-	document.getElementById('time-end').value = '';
-	document.getElementById('resource_name').value = '';
+    event.stopPropagation();
+    $('#edit-field').modal('show');
+    $('.datepicker').datepicker("setDate", new Date(year,month,date));
 }
+
 
 // Convert the date in yyyy-MM-dd format so that it can be shown in start and
 // end date of add new entry form.

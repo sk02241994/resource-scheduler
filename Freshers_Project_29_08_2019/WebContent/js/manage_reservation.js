@@ -1,12 +1,4 @@
 /**
- * 
- */
-
-var startDateToBeDisplayed;
-var startTimeToBeDisplayed;
-var endDateToBeDisplayed;
-var endTimeToBeDisplayed;
-/**
  * Method for enabling and disabling the time input boxes if all day event is
  * selected.
  * 
@@ -56,25 +48,6 @@ function displayData(data) {
         $('#endDate').datepicker("setDate", data.endDate);
         $('#edit-form #endTime').val(data.endTime);
     }
-}
-
-/**
- * Method to format date in form of mm/dd/yyyy
- * 
- * @param inputDate
- * @returns
- */
-function changeDateFormat(inputDate){   
-    var splitDate = inputDate.split('-');
-    if(splitDate.count == 0){
-        return null;
-    }
-
-    var year = splitDate[0];
-    var month = splitDate[1];
-    var day = splitDate[2]; 
-
-    return month + '/' + day + '/' + year;
 }
 
 /**

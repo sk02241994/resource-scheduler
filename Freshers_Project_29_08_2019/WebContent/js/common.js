@@ -13,37 +13,6 @@ function clearModal(){
             }
         });
 }
-/**
- * Method to display modal window
- * 
- * @param isEditButton
- * @param userId
- * @returns
- */
-function displayModalWindow(isEditButton, userId) {
-    clearNotice();
-    enableButton();
-	if(!isEditButton){
-		document.getElementById('edit-field').style.display = 'none';
-	} else {
-		var fields = ['text', 'textarea', 'hidden', 'date', 'time', 'select-one'];
-		if (userId == "0") {
-			var form = document.getElementById("edit-form");
-			Array.from(form.elements).forEach(input => {
-				if(fields.includes(input.type)) {
-					input.value = '';
-					input.readOnly = false;
-				}
-				if (input.type == 'checkbox') {
-					input.removeAttribute('checked');
-				}
-			});
-			document.getElementById('edit-field').style.display = 'block';
-		} else {
-			document.getElementById('edit-field').style.display = 'block';
-		}
-	}
-}
 
 function goToPage(url) {
 	window.location = url;

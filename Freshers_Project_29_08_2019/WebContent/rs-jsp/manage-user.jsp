@@ -1,113 +1,124 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.altres.utils.Gender" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>User</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- <link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
-<link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/manage-user.css" /> -->
-<script type="text/javascript" src="/ResourceScheduler/js/manage_user.js"></script>
-<script type="text/javascript" src="/ResourceScheduler/js/display-error.js"></script>
-<script type="text/javascript" src="/ResourceScheduler/js/common.js"></script>
-</head>
-<script> 
-
-executeEvent(window, 'load', function(){
-	displayModalWindow(${not empty user.rsUserId}, ${user.rsUserId});
-	addNoticeFormModal(${error_message_modal});
-	displayNoticeOnModal();
-});
-</script>
-<body>
-    <div class="container">
-    <!-- <div class="navbar"> -->
+    <head> 
+        <title>User</title> 
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/ResourceScheduler/css/common.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/ResourceScheduler/js/manage_user.js"></script>
+        <script type="text/javascript" src="/ResourceScheduler/js/display-error.js"></script>
+        <script type="text/javascript" src="/ResourceScheduler/js/common.js"></script>
+        <script>
+            executeEvent(window, 'load', function(){
+                addNoticeFormModal(${error_message_modal});
+                displayNoticeOnModal();
+                displayData(${user});
+            });
+        </script>
+    </head>
+    <body>
         <%@include file="nav-bar.jsp"%>
-    <!-- </div> -->
-    <button onclick="displayModalWindow(true, 0);" class="add-button">Add</button>
-    <%@include file="notification.jsp"%>
-    <div>
-        <div class="left">
-            <table>
+
+        <div class="container">
+            <div class="col-md-12 text-center gap-3 d-grid mt-3 mb-3">
+                <input type="button" data-toggle="modal" data-target="#edit-field" onclick="clearModal()" class="btn btn-primary btn-sm" value="Add" /%>
+            </div>
+            <%@include file="notification.jsp"%>
+            <table class="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th class="text-center" scope="col">Name</th>
+                        <th class="text-center" scope="col">Email</th>
+                        <th class="text-center" scope="col">Status</th>
+                        <th class="text-center" scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <c:forEach items="${users}" var="userRecord">
                         <tr>
-                            <td><c:out value="${userRecord.name}" /></td>
-                            <td><c:out value="${userRecord.email_address}" /></td>
-                            <td><c:out value="${userRecord.isEnabled() ? 'Active' : 'Inactive'}" /></td>
-                            <td><input type="button" onclick="getUser('${userRecord.rsUserId}');" value="Edit"></td>
+                            <th scope="row" class="text-center align-middle"><c:out value="${userRecord.name}" /></th>
+                            <td class="text-center align-middle"><c:out value="${userRecord.email_address}" /></td>
+                            <td class="text-center align-middle"><c:out value="${userRecord.isEnabled() ? 'Active' : 'Inactive'}" /></td>
+                            <td class="text-center align-middle"><input data-toggle="modal" data-target="#edit-field" class="btn btn-primary btn-sm" type="button" onclick="getUser('${userRecord.rsUserId}');" value="Edit"></td>
                         </tr>
                     </c:forEach>
                 </tbody>
             </table>
+
+            <div class="modal fade" id="edit-field" tabindex="-1" role="dialog" aria-labelledby="formTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content"> 
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="formTitle">Edit User</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <%@include file="display-error.jsp"%>
+                        <div class="modal-body"> 
+
+                            <form action="UserServlet" method="post" id="edit-form">
+                                <input type="hidden" name="userId" id="userId"/>
+                                <div class="form-group">
+                                    <label class="control-label" for="name">Name<span class="required">*</span>:</label>
+                                    <div>
+                                        <input type="text" class="form-control input-lg" id="name" name="name" maxlength="50"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label" for="email">Email Address<span class="required">*</span>:</label>
+                                    <div>
+                                        <input type="text" class="form-control input-lg" id="email" name="email" maxlength="50"/>
+                                    </div>
+                                </div>
+                                <div class="form-group form-check form-check-inline">
+                                    <input type="checkbox" id="isenabled" name="isenabled" class="form-check-input" /> 
+                                    <label class="form-check-label">Enable</label>
+                                </div>
+
+                                <div class="form-group form-check form-check-inline">
+                                    <input type="checkbox" id="isadmin" name="isadmin" class="form-check-input" /> 
+                                    <label class="form-check-label">Is Admin</label>
+                                </div>
+
+                                <div class="form-group form-check form-check-inline">
+                                    <input type="checkbox" id="isPermanentEmployee" name="isPermanentEmployee" class="form-check-input" /> 
+                                    <label class="form-check-label">Is Permanent Employee</label>
+                                </div>
+                                <br/>
+                                <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="radio" name="gender" id="gender" value="M">
+                                  <label class="form-check-label" for="flexRadioDefault1">
+                                    Male
+                                  </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="radio" name="gender" id="gender" value="F">
+                                  <label class="form-check-label" for="flexRadioDefault2">
+                                    Female
+                                  </label>
+                                </div>
+
+                            </form>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="return validateForm();">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div id="edit-field" class="edit-field">
-            <form action="UserServlet" method="post" class="edit-form" onsubmit="return validateForm(this)"
-                id="edit-form">
-                <table>
-                    <tr>
-                        <td colspan="2"><input type="hidden" name="userId" value="${user.rsUserId}" />
-                            <div class="cancel-container">
-                                <span onclick="document.getElementById('edit-field').style.display='none'" class="close">
-                                    &times;</span><br />
-                            </div>
-                            <%@include file="display-error.jsp"%>
-                    </tr>
-                    <tr>
-                        <td><label>Name<span class="required">*</span>:</label></td>
-                        <td><input type="text" name="name" value="${user.name}" maxlength="50"><br /></td>
-                    </tr>
-                    <tr>
-                        <td><label>Email Address<span class="required">*</span>:
-                        </label><br /></td>
-                        <td><input type="text" name="email" value="${user.email_address}" readonly="readonly"
-                            maxlength="50"><br /></td>
-                    </tr>
-                    <tr>
-                        <td><label>Enable</label></td>
-                        <td><input type="checkbox" name="isenabled"
-                            <c:if test="${user.isEnabled()}">checked="checked"</c:if>></td>
-                    </tr>
-                    <tr>
-                        <td><label>Is Admin</label></td>
-                        <td><input type="checkbox" name="isadmin"
-                            <c:if test="${user.isAdmin()}">checked="checked"</c:if>></td>
-                    </tr>
-                    <tr>
-                        <td><label>Gender</label></td>
-                        <td>
-                            <input type="radio" name="gender" value="M" <c:if test="${user.gender eq Gender.M}">checked</c:if>> Male </input>
-                            <input type="radio" name="gender" value="F" <c:if test="${user.gender eq Gender.F}">checked</c:if>> Female </input>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label>Is Permanent Employee</label></td>
-                        <td><input type="checkbox" name="isPermanentEmployee"
-                            <c:if test="${user.isPermanentEmployee()}">checked="checked"</c:if>></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                        <input type="submit" value="Save" class="button"> 
-                        <input type="button" class="button" onclick="document.getElementById('edit-field').style.display='none'" value="Cancel">
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        </div>
-    </div>
-    </div>
-</body>
+    </body>
 </html>

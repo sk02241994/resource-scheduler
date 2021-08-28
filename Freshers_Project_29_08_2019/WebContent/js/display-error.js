@@ -50,7 +50,9 @@ function displayNoticeOnModal(){
 }
 
 function addNoticeFormModal(notices) {
-	for (var i = 0; i < notices.length; i++) {
-		addError(notices[i]);
-	}
+    if(notices) {
+        for (var i = 0; i < notices.length; i++) {
+            addError(notices[i]);
+        }
+    }
 }

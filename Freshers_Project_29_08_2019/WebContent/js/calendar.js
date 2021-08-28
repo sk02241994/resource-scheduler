@@ -297,16 +297,6 @@ function addNewEntry(date, month, year, event) {
     $('.datepicker').datepicker("setDate", new Date(year,month,date));
 }
 
-
-// Convert the date in yyyy-MM-dd format so that it can be shown in start and
-// end date of add new entry form.
-function convert(str) {
-	  var date = new Date(str),
-	    mnth = ("0" + (date.getMonth() + 1)).slice(-2),
-	    day = ("0" + date.getDate()).slice(-2);
-	  return [date.getFullYear(), mnth, day].join("-");
-	}
-
 var selectedResourceId;
 function filterByResource(resource){
 	selectedResourceId = resource;
